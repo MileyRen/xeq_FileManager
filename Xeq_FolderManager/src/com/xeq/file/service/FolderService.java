@@ -5,7 +5,7 @@ import java.util.List;
 import com.xeq.file.domain.FileAndFolder;
 
 public interface FolderService {
-	int create(Integer userId, String name, Integer parentFolderId, String folderPath);
+	int create(Integer userId, String name, Integer parentFolderId, String folderPath,FileAndFolder parentObject);
 
 	List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId);
 
@@ -13,11 +13,14 @@ public interface FolderService {
 	FileAndFolder getById(Integer Id);
 
 	/** 删除文件夹及数据，若该文件夹下还有文件，则不予以删除,放在action中判断 */
-	int delete(Integer id);
+	int delete(Integer id,String path);
 
 	/** 上传文件信息到数据库 */
 	int uploadFile(Integer parentFolderId, String filename, String string, String type, String folderPath,
-			Integer userId, String mappingPath);
+			Integer userId, String mappingPath,FileAndFolder file);
 	/**查找父文件夹*/
 	String parentPath(Integer parentFolderId);
+	
+	/**级联删除，文件夹删除*/
+	void deleteFolder(FileAndFolder folder);
 }

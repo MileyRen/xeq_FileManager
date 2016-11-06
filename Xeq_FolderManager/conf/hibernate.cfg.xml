@@ -17,6 +17,6 @@
 
 		<!-- 二级缓存相关 -->
 		<!-- 基于annotation的配置 -->
-		 <mapping class="com.xeq.file.domain.FileAndFolder" /> 
+		  <mapping class="com.xeq.file.domain.FileAndFolder" />  
 	</session-factory>
 </hibernate-configuration>

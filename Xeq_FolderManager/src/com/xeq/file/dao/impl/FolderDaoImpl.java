@@ -24,9 +24,10 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 	public void setFolderOperate(FolderOperate folderOperate) {
 		this.folderOperate = folderOperate;
 	}
+	
 
 	@Override
-	public int createFolder(Integer userId, String name, Integer parentFolderId, String folderPath) {
+	public int createFolder(Integer userId, String name, Integer parentFolderId, String folderPath,FileAndFolder parentObject) {
 		System.out.println("根目录 =" + rootPath());
 		log.debug("-----------创建文件夹---------------");
 		FileAndFolder fileAndFolder = new FileAndFolder();
@@ -37,6 +38,7 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		fileAndFolder.setType("folder");
 		fileAndFolder.setUserId(userId);
 		fileAndFolder.setMappingPath(null);
+		fileAndFolder.setDeleteFlag(parentObject);
 		System.out.println("-------------输出名称" + name + "-------------------");
 		String path = folderPath + fileAndFolder.getName() + "\\";
 		if (parentFolderId == -1) {
@@ -92,12 +94,9 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		if (parentFolderId == -1) {
 			if (list.isEmpty() || list.size() == 0) {
 				String name = "user_" + userId;
-				int ret = createFolder(userId, name, parentFolderId, rootPath());
+				int ret = createFolder(userId, name, parentFolderId, rootPath(),null);
 				list = getByFolderOrFiles(userId, parentFolderId);
-			} /*
-				 * else { list = getByFolderOrFiles(userId,
-				 * list.get(0).getId()); }
-				 */
+			}
 		}
 		return list;
 	}
@@ -112,7 +111,7 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 
 	@Override
 	public int uploadFile(Integer parentFolderId, String filename, String size, String type, String folderPath,
-			Integer userId, String mappingPath) {
+			Integer userId, String mappingPath,FileAndFolder fileObject) {
 		FileAndFolder fileAndFolder = new FileAndFolder();
 		fileAndFolder.setFolderPath(folderPath);
 		fileAndFolder.setName(filename);
@@ -122,15 +121,24 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		fileAndFolder.setType(type);
 		fileAndFolder.setUserId(userId);
 		fileAndFolder.setMappingPath(mappingPath);
+		fileAndFolder.setDeleteFlag(fileObject);
 		int ret = (int) getSession().save(fileAndFolder);
 		return ret;
 	}
 
 	@Override
-	public int delete(Integer id) {
+	public int delete(Integer id,String path) {
 		String hql = "delete FileAndFolder as f where f.id=?";
 		int ret = getSession().createQuery(hql).setInteger(0, id).executeUpdate();
+		boolean flag = folderOperate.delete(path);
 		return ret;
 	}
 
+
+	@Override
+	public void deleteFolder(FileAndFolder folder) {
+		getSession().delete(folder);
+		String dir = folder.getFolderPath();
+		boolean flag = folderOperate.deleteDirectory(dir);
+	}
 }

@@ -68,12 +68,21 @@
 					<td>${type}</td>
 					<td>${size}</td>
 					<td>${folderPath}</td>
-					<td><a href="#" onclick="javascript:window.location.href='folderlist?parentFolderId=${id}'" 
-					       class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'"></a></td>
+					<td><a href="#" onclick="javascript:$('#win_deleteFolder').window('open')" 
+					       class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'"></a>
+				    </td>
 				    <td><a href="#"  onclick="javascript:$('#win_downFolder').window('open')" 
 				           id="btndown" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-download'">
 				        </a>
 				    </td>
+			 <div style="display:none;width:0px;height:0px;position:absolute">
+              <!-- 删除文件夹 -->
+              <form action="deleteDir.action" id="deleteFolder" method="post">
+                  <input type="text" name="id" value="${id }">
+                  <input type="text" name="folderPath" value="${folderPath}">
+                  <input type="text" name="parentFolderId" value="${parentFolderId }"></i>
+              </form>
+              </div>
 				</tr>
 				</s:if>
 				<s:else>
@@ -84,7 +93,9 @@
 					<td>${type}</td>
 					<td>${size}</td>
 					<td>${folderPath}</td>
-					<td><a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'"></a></td>
+					<td><a href="#" onclick="javascript:$('#win_deleteFile').window('open')" 
+					       class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'"></a>
+					</td>
 				    <td>
 				        <a href="#" 
 				           onclick="javascript:$('#downF').submit()" 
@@ -92,20 +103,57 @@
 				    </td>
 		    	</tr>	
 			  <div style="display:none;width:0px;height:0px;position:absolute">
+			   <!-- 下载文件 -->
 			   <form action="download.action" id="downF"  method ="post">
                    <input type="text" name="folderPath" value="${folderPath}">
 		       <br><input type="text" name="name" value="${name}">
 		       <br><input type="text" name="type" value="${type}">
 		       <br><input type="text" name="downfileName" value="${name}${type}">
               </form>
+              <!-- 删除文件 -->
+              <form action="delete.action" id="deleteF" method="post">
+                  <input type="text" name="id" value="${id }">
+                  <input type="text" name="folderPath" value="${folderPath}">
+                  <input type="text" name="name" value="${name}">
+                  <input type="text" name="type" value="${type}">
+                  <input type="text" name="parentFolderId" value="${parentFolderId }"></i>
+              </form>
               </div>
     	   </s:else>
 	   	</s:iterator>
 	</table>
-
-
+    <!-- 删除文件夹确认 -->
+    <div id="win_deleteFolder" class="easyui-window" title="TIP" 
+	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
+         style="width: 450px; height: 100px;" closable="true" closed="true">
+         ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?
+         <br><br>
+		<center>
+		<a href="#" class="easyui-linkbutton" icon="icon-ok" onclick="javascript:$('#deleteFolder').submit()">
+			Yes
+		</a>
+		<a href="#" class="easyui-linkbutton" icon="icon-cancel" onclick="javascript:$('#win_deleteFolder').window('close')">
+			No
+		</a>
+		</center>
+   </div>
+   
+    <!-- 删除文件确认 -->
+    <div id="win_deleteFile" class="easyui-window" title="TIP" 
+	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
+         style="width: 250px; height: 100px;" closable="true" closed="true">
+         ARE YOU SURE DELETE THE FILE?
+         <br><br>
+		<center><a href="#" class="easyui-linkbutton" icon="icon-ok" onclick="javascript:$('#deleteF').submit()">
+			Yes
+		</a>
+		<a href="#" class="easyui-linkbutton" icon="icon-cancel" onclick="javascript:$('#win_deleteFile').window('close')">
+			No
+		</a>
+		</center>
+   </div>
+    <!-- 删除文件或文件夹确认 -->
 	<!-- 下载文件夹失败 -->
-	
 	<div id="win_downFolder" class="easyui-window" title="TIP" 
 	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
          style="width: 250px; height: 100px;" closable="true" closed="true">

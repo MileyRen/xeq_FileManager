@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.tomcat.jni.File;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -22,16 +23,17 @@ public class TestCase extends BaseDao {
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
 
 	@Test
-	public void testDel(){
+	public void testDel() {
 		folderOperate = (FolderOperate) context.getBean("FolderOperate");
 		boolean ret = folderOperate.deleteDirectory("I:\\xeqFileTest\\user1");
 		Assert.assertEquals(true, ret);
 	}
-	
+
 	@Test
 	public void ted() {
 		String name = "dddfasdad/*s)";
-		if(name.contains("/"))System.out.println("name包含：/");
+		if (name.contains("/"))
+			System.out.println("name包含：/");
 
 	}
 
@@ -67,17 +69,26 @@ public class TestCase extends BaseDao {
 	@Test
 	public void create() {
 		folderService = (FolderService) context.getBean("FolderService");
-		System.out.println(folderService.create(1, "user1", -1, "I:\\xeqFileTest\\\\") + "创建成功");
+		FileAndFolder file = folderService.getById(6);
+		System.out.println(folderService.create(1, "second", 5, "I:\\xeqFileTest\\user_1\\", file) + "创建成功");
 	}
 
 	@Test
 	public void getAll() {
 		folderService = (FolderService) context.getBean("FolderService");
-		List<FileAndFolder> list = folderService.getByFolderOrFiles(1, -1);
+		List<FileAndFolder> list = folderService.getByFolderOrFiles(1, 1);
 		for (FileAndFolder fileAndFolder : list) {
 			System.out.println("id=" + fileAndFolder.getId() + ",name=" + fileAndFolder.getName() + ",parentFolder="
 					+ fileAndFolder.getParentFolderId() + ",time=" + fileAndFolder.getTime());
 		}
+	}
+	
+	@Test
+	public void del(){
+		folderService = (FolderService) context.getBean("FolderService");
+		FileAndFolder folder = new  FileAndFolder();
+		folder.setId(15);
+		folderService.deleteFolder(folder);
 	}
 
 }

@@ -48,6 +48,7 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 
 	@Autowired
 	private FolderService folderService;
+	private Integer id;
 	private Map<String, Object> session;
 	private Integer parentFolderId;
 	private String folderPath;// 父文件夹路径，用于新建文件夹时
@@ -121,7 +122,29 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		return jsonArray;
 	}
 
+	@Action(value = "delete", results = {
+			@Result(name = "success", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) })
 	public String deleteFile() {
+		logger.debug("------删除单个文件-----------\n");
+		int userId = (int) session.get("userId");
+		int flag = folderService.delete(id, folderPath + name + type);
+		logger.info("删除：" + flag + ";删除文件：" + folderPath + name + type);
+
+		return "success";
+	}
+
+	@Action(value = "deleteDir", results = {
+			@Result(name = "success", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) })
+	public String deleteFolder() {
+		logger.debug("------删除文件夹-----------\n");
+		int userId = (int) session.get("userId");
+		FileAndFolder folder = folderService.getById(id);
+		folderService.deleteFolder(folder);
+		
+		logger.info("删除文件夹：" + folderPath);
+
 		return "success";
 	}
 
@@ -153,15 +176,11 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	/***/
 	// 直接在类名称的上端写入即可，value中指定要引入的拦截器的名称即可
 	@Action(value = "addFolder", results = {
-			@Result(name = "createFolder",type = "redirect",location = "folderlist.action", 
-					params = { "parentFolderId","%{parentFolderId}" }),
-			@Result(name = "error",type = "redirect",location = "folderlist.action", 
-			        params = { 
-			        		"parentFolderId","%{parentFolderId}" }) }, 
-			interceptorRefs = { 
-					@InterceptorRef(value = "defaultStack"),
-				    @InterceptorRef(value = "token"), }
-	)
+			@Result(name = "createFolder", type = "redirect", location = "folderlist.action", params = {
+					"parentFolderId", "%{parentFolderId}" }),
+			@Result(name = "error", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) }, interceptorRefs = { @InterceptorRef(value = "defaultStack"),
+							@InterceptorRef(value = "token"), })
 	public String createFolder() {
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
 		logger.debug("--------创建文件夹------------");
@@ -189,7 +208,8 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 			}
 		}
 
-		int id = folderService.create(userId, name, parentFolderId, folderPath);
+		FileAndFolder parentObject = folderService.getById(parentFolderId);
+		int id = folderService.create(userId, name, parentFolderId, folderPath, parentObject);
 		if (id > 0) {
 			return "createFolder";
 		} else {
@@ -229,7 +249,7 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 					retu = "error";
 				}
 				filesCount = uploadFiles.size();
-				if(filesCount==0){
+				if (filesCount == 0) {
 					addFieldError("uploadFiles", "Please select a file!");
 					return "error";
 				}
@@ -248,12 +268,19 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 					System.out.println("文件名称：" + targetFileNames[i]);
 
 					File targetFile = new File(serverRealPath, targetFileNames[i]);
-					FileUtils.copyFile(uploadFiles.get(i), targetFile);
-					System.out.println("--------------------文件上传成功---------------");
+
+					try {
+						FileUtils.copyFile(uploadFiles.get(i), targetFile);
+						logger.info("--------------------文件上传成功---------------");
+					} catch (Exception e) {
+						logger.info("upload failed");
+						retu = "error";
+					}
 					// 传入数据库
 
+					FileAndFolder fileObject = folderService.getById(parentFolderId);
 					int ret = folderService.uploadFile(parentFolderId, fileN.substring(0, fileN.lastIndexOf(".")),
-							fileSize.get(i), uploadFilesContentType.get(i), folderPath, userId, folderPath);
+							fileSize.get(i), uploadFilesContentType.get(i), folderPath, userId, folderPath, fileObject);
 				}
 
 				addActionMessage("Upload success!");
@@ -262,7 +289,7 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 				addActionError("Please select a file.");
 				retu = "error";
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return retu;
@@ -270,15 +297,18 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 
 	// 文件下载
 	public InputStream getInputStream() throws FileNotFoundException, UnsupportedEncodingException {
-		System.out.println("文件名-----------------------:" + downfileName+";"+getDownfileName());
+		System.out.println("文件名-----------------------:" + downfileName + ";" + getDownfileName());
 
 		String realpath = folderPath + name + type;
 		// 如果下载文件名为中文，进行字符编码转换
-		/*ServletActionContext.getResponse().setHeader("Content-Disposition",
-				"attachment;fileName=" + java.net.URLEncoder.encode(downfileName, "UTF-8"));*/
+		/*
+		 * ServletActionContext.getResponse().setHeader("Content-Disposition",
+		 * "attachment;fileName=" + java.net.URLEncoder.encode(downfileName,
+		 * "UTF-8"));
+		 */
 		File file = new File(realpath);
 		InputStream inputStream = new FileInputStream(file);
-		logger.info("下载路径："+realpath);
+		logger.info("下载路径：" + realpath);
 		System.out.println("input==" + inputStream);
 
 		if (inputStream == null) {
@@ -289,14 +319,9 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	}
 
 	// 下载
-	@Action(value = "download", 
-			results = { 
-					@Result(name = "success", type = "stream") }, 
-			params = { 
-					"contentType","application/octet-stream;charset=UTF-8", 
-					"contentDisposition", "attachment;filename=\"${downfileName}\"",
-			        "inputName", "inputStream", 
-			        "bufferSize", "4096" })
+	@Action(value = "download", results = { @Result(name = "success", type = "stream") }, params = { "contentType",
+			"application/octet-stream;charset=UTF-8", "contentDisposition", "attachment;filename=\"${downfileName}\"",
+			"inputName", "inputStream", "bufferSize", "4096" })
 	public String downloadFile() throws Exception {
 		return "success";
 	}
@@ -438,4 +463,13 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	public void setDownfileName(String downfileName) {
 		this.downfileName = downfileName;
 	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
 }

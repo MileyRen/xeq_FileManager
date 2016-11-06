@@ -26,8 +26,7 @@
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
 		p:dataSource-ref="dataSource"
 		p:configLocation="classpath:hibernate.cfg.xml"
-		 />
-<!-- p:mappingLocations="classpath:${hbm.xml.mappingLocations}" -->
+		/>
 	<!-- 配置spring的声明式事务 -->
 	<!-- 1、配置hibernate的事务管理 -->
 	<bean id="transactionManager"

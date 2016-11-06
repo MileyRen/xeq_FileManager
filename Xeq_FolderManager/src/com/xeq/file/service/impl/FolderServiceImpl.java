@@ -21,8 +21,9 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 	}
 
 	@Override
-	public int create(Integer userId, String name, Integer parentFolderId, String folderPath) {
-		return folderDao.createFolder(userId, name, parentFolderId, folderPath);
+	public int create(Integer userId, String name, Integer parentFolderId, String folderPath,
+			FileAndFolder parentObject) {
+		return folderDao.createFolder(userId, name, parentFolderId, folderPath, parentObject);
 	}
 
 	@Override
@@ -37,17 +38,23 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 
 	@Override
 	public int uploadFile(Integer parentFolderId, String filename, String size, String type, String folderPath,
-			Integer userId, String mappingPath) {
-		return folderDao.uploadFile(parentFolderId, filename, size, type, folderPath, userId, mappingPath);
+			Integer userId, String mappingPath,FileAndFolder fileObject) {
+		return folderDao.uploadFile(parentFolderId, filename, size, type, folderPath, userId, mappingPath,fileObject);
 	}
 
 	@Override
-	public String parentPath(Integer parentFolderId){
+	public String parentPath(Integer parentFolderId) {
 		return folderDao.parentPath(parentFolderId);
 	}
+
 	@Override
-	public int delete(Integer id) {
-		return folderDao.delete(id);
+	public int delete(Integer id, String path) {
+		return folderDao.delete(id, path);
+	}
+
+	@Override
+	public void deleteFolder(FileAndFolder folder) {
+		folderDao.deleteFolder(folder);
 	}
 
 }
