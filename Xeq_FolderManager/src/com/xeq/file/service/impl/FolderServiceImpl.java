@@ -37,10 +37,14 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 
 	@Override
 	public int uploadFile(Integer parentFolderId, String filename, String size, String type, String folderPath,
-			Integer userId) {
-		return folderDao.uploadFile(parentFolderId, filename, size, type, folderPath, userId);
+			Integer userId, String mappingPath) {
+		return folderDao.uploadFile(parentFolderId, filename, size, type, folderPath, userId, mappingPath);
 	}
 
+	@Override
+	public String parentPath(Integer parentFolderId){
+		return folderDao.parentPath(parentFolderId);
+	}
 	@Override
 	public int delete(Integer id) {
 		return folderDao.delete(id);

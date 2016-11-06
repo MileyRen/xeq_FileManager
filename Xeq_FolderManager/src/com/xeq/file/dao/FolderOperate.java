@@ -9,6 +9,9 @@ public interface FolderOperate {
 	 */
 	boolean createRealFolder(String name, String path);
 
-	/** 删除文件 */
+	/** 删除单个文件 */
 	boolean delete(String path);
+
+	/** 删除目录 及目录下文件 */
+	boolean deleteDirectory(String dir);
 }

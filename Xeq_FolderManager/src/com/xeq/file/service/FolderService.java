@@ -14,7 +14,10 @@ public interface FolderService {
 
 	/** 删除文件夹及数据，若该文件夹下还有文件，则不予以删除,放在action中判断 */
 	int delete(Integer id);
-	
+
 	/** 上传文件信息到数据库 */
-	int uploadFile(Integer parentFolderId, String filename, String string, String type, String folderPath, Integer userId);
+	int uploadFile(Integer parentFolderId, String filename, String string, String type, String folderPath,
+			Integer userId, String mappingPath);
+	/**查找父文件夹*/
+	String parentPath(Integer parentFolderId);
 }

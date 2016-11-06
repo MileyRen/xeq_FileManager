@@ -1,7 +1,11 @@
 package com.xeq.file.action;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +30,11 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 import com.opensymphony.xwork2.Preparable;
-import com.sun.glass.ui.Size;
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Intercepter;
 import com.xeq.file.domain.FileAndFolder;
 import com.xeq.file.service.FolderService;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 @Namespace("/")
 @ParentPackage("struts-default")
@@ -39,7 +44,7 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	private static final long serialVersionUID = -5640743370611684124L;
 	private static Logger logger = Logger.getLogger(FolderAction.class);
 	/** 栈，用于存放访问次序，若一个文件夹被删除，则应删除栈中所有该文件夹及子文件夹 */
-	private static Stack<Integer> preAndnext = new Stack<Integer>();
+	private static final Stack<Integer> preAndnext = new Stack<Integer>();
 
 	@Autowired
 	private FolderService folderService;
@@ -47,6 +52,7 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	private Integer parentFolderId;
 	private String folderPath;// 父文件夹路径，用于新建文件夹时
 	private String name;
+	private String type;
 
 	// 定义多文件上传的数组
 	private List<File> uploadFiles;
@@ -57,12 +63,14 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	private String targetFileDir;
 	private int filesCount;
 
+	// 下载
+	private String downfileName;
+
 	/*** 显示当前级别的文件结果 */
 	@Action(value = "folderlist", results = { @Result(name = "folderlist", location = "/fileManager/folderList.jsp") })
 	public String FolderList() {
 
 		logger.debug("------查询结果-----------");
-		// session.put("userId", 1);// 用户Id,整合式需要修改
 		int userId = (int) session.get("userId");
 		List<FileAndFolder> faflists = new ArrayList<FileAndFolder>();
 		if (parentFolderId == null) {
@@ -72,10 +80,10 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		// 从根目录下开始查找
 		faflists = folderService.getByFolderOrFiles(userId, parentFolderId);
 
-		FileAndFolder fileAndFolder = folderService.getById(parentFolderId);
-		// System.out.println("parentId=" + fileAndFolder.getId() + ";path=" +
-		// fileAndFolder.getFolderPath());
-		folderPath = fileAndFolder.getFolderPath();
+		JSONArray jsonFile = FileListJson(faflists);
+		session.put("jsonFile", jsonFile);
+
+		folderPath = folderService.parentPath(parentFolderId);
 
 		if (preAndnext.size() > 0) {
 			Integer temp = preAndnext.get(preAndnext.size() - 1);
@@ -89,32 +97,54 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		session.put("parentPath", folderPath);
 		session.put("parentId", parentFolderId);
 		session.put("faflists", faflists);
-
-		session.put("initFlag", 1);
 		return "folderlist";
+	}
+
+	// 返回一个json字符串
+	private JSONArray FileListJson(List<FileAndFolder> list) {
+		JSONArray jsonArray = new JSONArray();
+
+		for (FileAndFolder fileAndFolder : list) {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("jid", fileAndFolder.getId());
+			jsonObject.put("jname", fileAndFolder.getName());
+			jsonObject.put("jfolderPath", fileAndFolder.getFolderPath());
+			jsonObject.put("jparentFolderId", fileAndFolder.getParentFolderId());
+			jsonObject.put("jmappingPath", fileAndFolder.getMappingPath());
+			jsonObject.put("jsize", fileAndFolder.getSize());
+			jsonObject.put("jtime", fileAndFolder.getTime());
+			jsonObject.put("jtype", fileAndFolder.getType());
+			jsonObject.put("userId", fileAndFolder.getUserId());
+			jsonArray.add(jsonObject);
+		}
+		logger.info("jsonArray---------------:" + jsonArray);
+		return jsonArray;
+	}
+
+	public String deleteFile() {
+		return "success";
 	}
 
 	//
 	//
-	//返回上一级
+	// 返回上一级
 	@Action(value = "backStack", results = { @Result(name = "success", location = "/fileManager/folderList.jsp") })
 	public String getBack() {
-		Integer pid = -1;//初始化为第一页
 		Integer userId = (Integer) session.get("userId");
-		if (preAndnext.size() > 0) {
+		// 初始化pid
+		Integer parentId = folderService.getByFolderOrFiles(userId, -1).get(0).getId();
+		Integer pid = parentId;// 初始化为第一页
+		try {
 			preAndnext.pop();// 当前父文件夹出栈
-			if (preAndnext.size() > 0) {
-				pid = preAndnext.get(preAndnext.size() - 1);// 获得上一级文件夹
-			}
+			pid = preAndnext.get(preAndnext.size() - 1);// 获得上一级文件夹
+		} catch (Exception e) {// 若数组越界，则返回初始化值
+			pid = parentId;
 		}
-		System.out.println("父文件夹----------------"+pid);
+		folderPath = folderService.parentPath(pid);
 		List<FileAndFolder> faflists = folderService.getByFolderOrFiles(userId, pid);
-		FileAndFolder fileAndFolder = folderService.getById(pid);
-		folderPath = fileAndFolder.getFolderPath();
 
 		session.put("parentPath", folderPath);
 		session.put("parentId", pid);
-		// session.put("Folderstack", preAndnext);
 		session.put("faflists", faflists);
 
 		return "success";
@@ -123,25 +153,19 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	/***/
 	// 直接在类名称的上端写入即可，value中指定要引入的拦截器的名称即可
 	@Action(value = "addFolder", results = {
-			@Result(name = "createFolder", type = "redirect", location = "folderlist", params = { "parentFolderId",
-					"%{parentFolderId}" }),
-			@Result(name = "error", type = "redirect", location = "folderlist", params = { "parentFolderId",
-					"%{parentFolderId}" }) }, interceptorRefs = { @InterceptorRef(value = "defaultStack"),
-							@InterceptorRef(value = "token"), }
-	/*
-	 * @Result(name = "input", location = "/fileManager/folderList.jsp"),
-	 * 
-	 * @Result(name = "error", location = "/fileManager/folderList.jsp") },
-	 * interceptorRefs = {
-	 * 
-	 * @InterceptorRef(value = "defaultStack"), @InterceptorRef(value = "token")
-	 * }
-	 */)
+			@Result(name = "createFolder",type = "redirect",location = "folderlist.action", 
+					params = { "parentFolderId","%{parentFolderId}" }),
+			@Result(name = "error",type = "redirect",location = "folderlist.action", 
+			        params = { 
+			        		"parentFolderId","%{parentFolderId}" }) }, 
+			interceptorRefs = { 
+					@InterceptorRef(value = "defaultStack"),
+				    @InterceptorRef(value = "token"), }
+	)
 	public String createFolder() {
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
 		logger.debug("--------创建文件夹------------");
 
-		// session.put("userId", 1);
 		int userId = (int) session.get("userId");
 
 		if (name == null || name.equals("")) {
@@ -186,24 +210,29 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 
 	// **上传文件,多文件上传*//*
 	@Action(value = "fileUpload", results = {
-			@Result(name = "success", type = "redirect", location = "folderlist", params = { "parentFolderId",
+			@Result(name = "success", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
 					"%{parentFolderId}" }),
-			@Result(name = "error", type = "redirect", location = "folderlist", params = { "parentFolderId",
+			@Result(name = "error", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
 					"%{parentFolderId}" }) })
 	public String uploadFiles() {
 		String retu = "success";
 		int userId = (int) session.get("userId");
 		try {
+			// 文件上传到真正的路径，然后在数据库进行映射
 			if (uploadFiles != null) {
 				// 存到folderPath中
 				String serverRealPath = folderPath;// ServletActionContext.getServletContext().getRealPath(folderPath);
-				System.err.println("---------------servletRealPath=" + serverRealPath + "------------------");
+				logger.info("---------------servletRealPath=" + serverRealPath + "------------------");
 				File dir = new File(serverRealPath);
 				if (!dir.exists()) {
 					addActionError("Upload Error!");
 					retu = "error";
 				}
 				filesCount = uploadFiles.size();
+				if(filesCount==0){
+					addFieldError("uploadFiles", "Please select a file!");
+					return "error";
+				}
 				uploadFilesContentType = new ArrayList<String>();
 				fileSize = new ArrayList<String>();
 				targetFileNames = new String[filesCount];
@@ -224,7 +253,7 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 					// 传入数据库
 
 					int ret = folderService.uploadFile(parentFolderId, fileN.substring(0, fileN.lastIndexOf(".")),
-							fileSize.get(i), uploadFilesContentType.get(i), folderPath, userId);
+							fileSize.get(i), uploadFilesContentType.get(i), folderPath, userId, folderPath);
 				}
 
 				addActionMessage("Upload success!");
@@ -237,6 +266,39 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 			e.printStackTrace();
 		}
 		return retu;
+	}
+
+	// 文件下载
+	public InputStream getInputStream() throws FileNotFoundException, UnsupportedEncodingException {
+		System.out.println("文件名-----------------------:" + downfileName+";"+getDownfileName());
+
+		String realpath = folderPath + name + type;
+		// 如果下载文件名为中文，进行字符编码转换
+		/*ServletActionContext.getResponse().setHeader("Content-Disposition",
+				"attachment;fileName=" + java.net.URLEncoder.encode(downfileName, "UTF-8"));*/
+		File file = new File(realpath);
+		InputStream inputStream = new FileInputStream(file);
+		logger.info("下载路径："+realpath);
+		System.out.println("input==" + inputStream);
+
+		if (inputStream == null) {
+			session.put("downFlage", "Down Failed!");
+			logger.info("请检查文件名");
+		}
+		return inputStream;
+	}
+
+	// 下载
+	@Action(value = "download", 
+			results = { 
+					@Result(name = "success", type = "stream") }, 
+			params = { 
+					"contentType","application/octet-stream;charset=UTF-8", 
+					"contentDisposition", "attachment;filename=\"${downfileName}\"",
+			        "inputName", "inputStream", 
+			        "bufferSize", "4096" })
+	public String downloadFile() throws Exception {
+		return "success";
 	}
 
 	private String FormetFileSize(long fileS) {// 转换文件大小
@@ -361,4 +423,19 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		this.fileSize = fileSize;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getDownfileName() {
+		return downfileName;
+	}
+
+	public void setDownfileName(String downfileName) {
+		this.downfileName = downfileName;
+	}
 }

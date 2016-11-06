@@ -36,6 +36,7 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		fileAndFolder.setTime(new Date());
 		fileAndFolder.setType("folder");
 		fileAndFolder.setUserId(userId);
+		fileAndFolder.setMappingPath(null);
 		System.out.println("-------------输出名称" + name + "-------------------");
 		String path = folderPath + fileAndFolder.getName() + "\\";
 		if (parentFolderId == -1) {
@@ -67,6 +68,16 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 	}
 
 	@Override
+	public String parentPath(Integer parentFolderId) {
+		String path = rootPath();
+		if(parentFolderId!=-1){
+		FileAndFolder fileAndFolder = getById(parentFolderId);
+		path=fileAndFolder.getFolderPath();
+		}
+		return path;
+	}
+
+	@Override
 	public List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId) {
 		log.debug("-------------查询文件及文件夹-----------------");
 
@@ -93,7 +104,7 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 
 	@Override
 	public FileAndFolder getById(Integer Id) {
-		
+
 		String hql = "from FileAndFolder where id=:id";
 		FileAndFolder fileAndFolder = (FileAndFolder) getSession().createQuery(hql).setInteger("id", Id).uniqueResult();
 		return fileAndFolder;
@@ -101,7 +112,7 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 
 	@Override
 	public int uploadFile(Integer parentFolderId, String filename, String size, String type, String folderPath,
-			Integer userId) {
+			Integer userId, String mappingPath) {
 		FileAndFolder fileAndFolder = new FileAndFolder();
 		fileAndFolder.setFolderPath(folderPath);
 		fileAndFolder.setName(filename);
@@ -110,14 +121,15 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		fileAndFolder.setTime(new Date());
 		fileAndFolder.setType(type);
 		fileAndFolder.setUserId(userId);
+		fileAndFolder.setMappingPath(mappingPath);
 		int ret = (int) getSession().save(fileAndFolder);
 		return ret;
 	}
 
 	@Override
-	public int delete(Integer id ) {
-		String hql="delete FileAndFolder as f where f.id=?";
-		int ret =getSession().createQuery(hql).setInteger(0,id).executeUpdate();
+	public int delete(Integer id) {
+		String hql = "delete FileAndFolder as f where f.id=?";
+		int ret = getSession().createQuery(hql).setInteger(0, id).executeUpdate();
 		return ret;
 	}
 

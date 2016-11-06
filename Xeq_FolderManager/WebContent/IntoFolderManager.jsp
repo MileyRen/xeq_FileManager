@@ -7,13 +7,13 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
 </head>
-<body onload="addText('form1','tableID');">
+<body>
 	这是文件管理的入口，点击之后进入文件管理
 	<br>
 	<%
 		session.setAttribute("userId", 1);
 	%>
-	<a href="folderlist.action">点击进入文件管理</a>
+	<a href="folderlist.action" >点击进入文件管理</a>
 
 </body>
 </html>

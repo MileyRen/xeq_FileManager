@@ -27,13 +27,8 @@ public class BaseDao {
 	}
 
 	public  String rootPath() {
-		//InputStream in;
 		String path = "";
 		try {
-			/*in = new BufferedInputStream(new FileInputStream("/conf/filesource.properties"));
-			Properties pro = new Properties();
-			pro.load(in);
-			path = pro.getProperty("file.root.parent");*/
 			properties.load(inputStream);
 			path=properties.getProperty("file.root.parent");
 		} catch (Exception e) {
@@ -41,4 +36,7 @@ public class BaseDao {
 		}
 		return path;
 	}
+	
+	
+	
 }

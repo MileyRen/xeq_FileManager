@@ -15,22 +15,18 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <title>Folder_List</title>
+  
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/default/easyui.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/icon.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/demo/demo.css">
-	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.min.js"></script>
+ 	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.min.js"></script>
 	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="jsFileManager/folder.js"></script>
 <script type="text/javascript">
-<!--用于初始化页面列表-->
-	/*  $(function($) {
-	if ($("input#init").val() == "")
-	$("form#finit").submit();
-	}); */
 </script>
 </head>
 <%
-	//初始化
+	//初始化页面
 	Integer id = (Integer) request.getSession().getAttribute("parentId");
 	if (id == null || id.equals("")) {
 		session.setAttribute("userId", 1);
@@ -39,60 +35,87 @@
 	}
 %>
 <body>
-	<%-- 	<!--用于初始化页面列表-->
-	<form id="finit" action="folderlist" method="post"
-		style="display: none">
-		 <input id="init" type="text" value="${initFlag}"> 
-		 <input id="init" type="hidden" name="parentFolderId" value="${parentId}"/> 
-	</form> --%>
 	<!-- 初始化页面列表结束 -->
 	<div class="easyui-panel" style="padding: 10px;">
-	<a href="backStack.action" id="btnback" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'">
+	<a href= "backStack.action" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'"
+	   onclick="javascript:window.location.href='backStack.action'">
 		Back
 	</a>
 	<a href="#" id="btncreate" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'">
 		Create Folder
 	</a>
-	<a href="#" id="btndelete" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'">
-		Delete
-	</a>
-	<a href="#" id="btndown" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-download'">
-		DownLoad
-	</a>
+	
 	<a href="#" id="btnupload" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-upload'">
 		Upload
 	</a>
 </div>
-	<table>
+
+<table>
 		<tr>
-			<th>id</th>
+		<th></th>
 			<th>name</th>
 			<th>updateTime</th>
 			<th>type</th>
 			<th>size</th>
+			<th>folderPath</th>
 		</tr>
 		<s:iterator value="#session.faflists" status="FileAndFolder">
-			<tr>
-				<s:if test="type=='folder'">
-					<td colspan="4"><s:a action="folderlist">
-							<s:param name="parentFolderId" value="id" />
-							${id }
-					${name}
-					<s:date name="time" format="yyyy-MM-dd" />
-					${type}
-					${size}
-				</s:a></td>
+			<s:if test="type=='folder'">
+			    <tr onclick="javascript:window.location.href='folderlist.action?parentFolderId=${id}'">
+					<td><a class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-folder'"/></td>
+					<td>${name}</td>
+					<td><s:date name="time" format="yyyy-MM-dd" /></td>
+					<td>${type}</td>
+					<td>${size}</td>
+					<td>${folderPath}</td>
+					<td><a href="#" onclick="javascript:window.location.href='folderlist?parentFolderId=${id}'" 
+					       class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'"></a></td>
+				    <td><a href="#"  onclick="javascript:$('#win_downFolder').window('open')" 
+				           id="btndown" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-download'">
+				        </a>
+				    </td>
+				</tr>
 				</s:if>
-				<td colspan="4"><s:else>
-				${id }
-					${name}
-					<s:date name="time" format="yyyy-MM-dd" />
-					${type}
-					${size}
-					</s:else></td>
-			</tr>
-		</s:iterator>
+				<s:else>
+				<tr>
+				<td><a class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-file'"/></td>
+					<td>${name}</td>
+					<td><s:date name="time" format="yyyy-MM-dd" /></td>
+					<td>${type}</td>
+					<td>${size}</td>
+					<td>${folderPath}</td>
+					<td><a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'"></a></td>
+				    <td>
+				        <a href="#" 
+				           onclick="javascript:$('#downF').submit()" 
+				           id="btndown" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-download'"></a>
+				    </td>
+		    	</tr>	
+			  <div style="display:none;width:0px;height:0px;position:absolute">
+			   <form action="download.action" id="downF"  method ="post">
+                   <input type="text" name="folderPath" value="${folderPath}">
+		       <br><input type="text" name="name" value="${name}">
+		       <br><input type="text" name="type" value="${type}">
+		       <br><input type="text" name="downfileName" value="${name}${type}">
+              </form>
+              </div>
+    	   </s:else>
+	   	</s:iterator>
 	</table>
+
+
+	<!-- 下载文件夹失败 -->
+	
+	<div id="win_downFolder" class="easyui-window" title="TIP" 
+	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
+         style="width: 250px; height: 100px;" closable="true" closed="true">
+         YOU CAN'T DOWNLOAD A FOLDER!
+         <br><br>
+		<center><a href="#" class="easyui-linkbutton" icon="icon-ok" onclick="javascript:$('#win_downFolder').window('close')">
+			OK
+		</a>
+		</center>
+   </div>
 	
 	<!-- 上传文件窗口 -->
     <div id="win_upload" class="easyui-window" title="Upload New File"
@@ -100,8 +123,11 @@
          style="width: 600px; height: 350px;" closable="true" closed="true">
     
     <div id="tools-bar">
-    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:alert('Add')">Add</a>
-    <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:alert('Save')">Save</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addMore()">Add</a>
+    <a class="easyui-linkbutton" icon="icon-upload" plain="true"  
+       onclick="javascript:$('form#addFiles').submit()" >
+	   Upload
+	</a>
     </div>    
      <s:form action="fileUpload" id="addFiles"  method ="post"
            style="padding:10px 20px 10px 80px;" enctype="multipart/form-data">
@@ -110,9 +136,14 @@
 		<input type="hidden" name="parentFolderId" value=${session.parentId }>
 		<input type="hidden" name="folderPath" value=${session.parentPath }>
 		
+		<%-- 
 		<s:file name="uploadFiles" label="select file"/>
-		<s:file name="uploadFiles" label="select file"/>
-		
+		<s:file name="uploadFiles" label="select file"/> 
+		--%>
+		<div id="more"></div>
+	</s:form>
+		<!-- <div id="uploadBtn" style="display:none">
+		<br>
 		<a class="easyui-linkbutton" icon="icon-add" onclick="javascript:$('form#addFiles').submit()" >
 			Submit
 		</a>
@@ -120,9 +151,7 @@
 		<a href="#" class="easyui-linkbutton" icon="icon-cancel" onclick="javascript:$('#win_upload').window('close')">
 			Cancel
 		</a>
-	</s:form>
-	
-	
+		</div> -->
 		
     </div>
     <!-- 上传文件窗口结束 -->
@@ -137,11 +166,9 @@
 		<input type="hidden" name="parentFolderId" value=${session.parentId }>
 		<input type="hidden" name="folderPath" value=${session.parentPath }>
 		Folder Name:
-		
 		<input name="name" id="name" type="text" required>
 		<br>
 		<br>
-		<%-- <s:submit/> --%>
 		<a class="easyui-linkbutton" icon="icon-add" onclick="javascript:$('form#addF').submit()">
 			Submit
 		</a>

@@ -1,24 +1,12 @@
 package com.xeq.file.domain;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import javax.persistence.CascadeType;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Entity
 @Table(name = "file_and_folder")
@@ -53,23 +41,23 @@ public class FileAndFolder implements java.io.Serializable {
 	private String folderPath;
 
 	// 级联删除标识
-	//@ManyToOne(cascade = CascadeType.REMOVE, optional = false)
-	//@JoinColumn(name = "deleteFlag", referencedColumnName = "id")
-	//private FileAndFolder deleteFlag;
+	// @ManyToOne(cascade = CascadeType.REMOVE, optional = false)
+	// @JoinColumn(name = "deleteFlag", referencedColumnName = "id")
+	// private FileAndFolder deleteFlag;
 
-//	@OneToMany(mappedBy = "file_and_folder", cascade = CascadeType.REMOVE)
-	//private Set<FileAndFolder> deleteFlagSets = new HashSet<FileAndFolder>();
+	// @OneToMany(mappedBy = "file_and_folder", cascade = CascadeType.REMOVE)
+	// private Set<FileAndFolder> deleteFlagSets = new HashSet<FileAndFolder>();
 
 	// 映射的真实路径
-	//@Column(name = "mappingPath", nullable = true, length = 225)
-//	private String mappingPath;
+	@Column(name = "mappingPath", nullable = true, length = 225)
+	private String mappingPath;
 
 	public FileAndFolder() {
 		super();
 	}
 
 	public FileAndFolder(Integer id, Integer parentFolderId, String name, Date time, String size, Integer userId,
-			String type, String folderPath) {
+			String type, String folderPath, String mappingPath) {
 		super();
 		this.id = id;
 		this.parentFolderId = parentFolderId;
@@ -79,19 +67,7 @@ public class FileAndFolder implements java.io.Serializable {
 		this.userId = userId;
 		this.type = type;
 		this.folderPath = folderPath;
-	//	this.deleteFlag = deleteFlag;
-	//	this.deleteFlagSets = deleteFilags;
-	//	this.mappingPath=mappingPath;
-	}
-
-
-
-	public String getFolderPath() {
-		return folderPath;
-	}
-
-	public void setFolderPath(String folderPath) {
-		this.folderPath = folderPath;
+		this.mappingPath = mappingPath;
 	}
 
 	public Integer getId() {
@@ -148,6 +124,22 @@ public class FileAndFolder implements java.io.Serializable {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getFolderPath() {
+		return folderPath;
+	}
+
+	public void setFolderPath(String folderPath) {
+		this.folderPath = folderPath;
+	}
+
+	public String getMappingPath() {
+		return mappingPath;
+	}
+
+	public void setMappingPath(String mappingPath) {
+		this.mappingPath = mappingPath;
 	}
 
 }

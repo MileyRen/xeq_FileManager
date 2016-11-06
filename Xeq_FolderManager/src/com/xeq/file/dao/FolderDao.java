@@ -35,6 +35,8 @@ public interface FolderDao {
 	/** 将上传文件信息传入数据库 *
 	 * @parentFolder 父文件夹
 	 * @filename 文件名*/
-	int uploadFile(Integer parentFolderId,String filename,String size,String type,String folderPath,Integer userId);
+	int uploadFile(Integer parentFolderId,String filename,String size,String type,String folderPath,Integer userId,String mappingPath);
     
+	/**查找父文件夹*/
+	String parentPath(Integer parentFolderId);
 }

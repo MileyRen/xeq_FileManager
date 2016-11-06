@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -20,6 +21,13 @@ public class TestCase extends BaseDao {
 	private FolderOperate folderOperate;
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
 
+	@Test
+	public void testDel(){
+		folderOperate = (FolderOperate) context.getBean("FolderOperate");
+		boolean ret = folderOperate.deleteDirectory("I:\\xeqFileTest\\user1");
+		Assert.assertEquals(true, ret);
+	}
+	
 	@Test
 	public void ted() {
 		String name = "dddfasdad/*s)";

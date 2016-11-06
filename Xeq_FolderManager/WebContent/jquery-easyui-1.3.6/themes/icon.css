@@ -1,4 +1,14 @@
 /* 自定义 */
+
+.icon-folder{
+	background:url('icons/folder.png') no-repeat center center;
+}
+
+.icon-file{
+	background:url('icons/file.png') no-repeat center center;
+}
+
+
 .icon-upload{
 	background:url('icons/upload.png') no-repeat center center;
 }
