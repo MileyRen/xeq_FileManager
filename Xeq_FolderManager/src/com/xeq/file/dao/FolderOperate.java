@@ -14,4 +14,5 @@ public interface FolderOperate {
 
 	/** 删除目录 及目录下文件 */
 	boolean deleteDirectory(String dir);
+
 }

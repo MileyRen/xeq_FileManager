@@ -69,8 +69,7 @@ public class TestCase extends BaseDao {
 	@Test
 	public void create() {
 		folderService = (FolderService) context.getBean("FolderService");
-		FileAndFolder file = folderService.getById(6);
-		System.out.println(folderService.create(1, "second", 5, "I:\\xeqFileTest\\user_1\\", file) + "创建成功");
+		System.out.println(folderService.create(2, "user_1", -1, "I:\\xeqFileTest\\", null) + "创建成功");
 	}
 
 	@Test

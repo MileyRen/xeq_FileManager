@@ -6,7 +6,9 @@ import com.xeq.file.domain.FileAndFolder;
 
 public interface FolderService {
 	int create(Integer userId, String name, Integer parentFolderId, String folderPath,FileAndFolder parentObject);
-
+	/** 保存新的对象到数据库中 */
+	int saveFileAndFolder(FileAndFolder fileAndFolder);
+	
 	List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId);
 
 	/** 按照Id查找文件 */

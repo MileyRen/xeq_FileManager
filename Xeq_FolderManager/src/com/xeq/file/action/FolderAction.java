@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +18,10 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.InterceptorRef;
+import org.apache.struts2.convention.annotation.InterceptorRefs;
 import org.apache.struts2.convention.annotation.Namespace;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
@@ -141,8 +144,9 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		logger.debug("------删除文件夹-----------\n");
 		int userId = (int) session.get("userId");
 		FileAndFolder folder = folderService.getById(id);
+		logger.info("删除的文件夹ID="+getId());
 		folderService.deleteFolder(folder);
-		
+
 		logger.info("删除文件夹：" + folderPath);
 
 		return "success";
@@ -179,7 +183,8 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 			@Result(name = "createFolder", type = "redirect", location = "folderlist.action", params = {
 					"parentFolderId", "%{parentFolderId}" }),
 			@Result(name = "error", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
-					"%{parentFolderId}" }) }, interceptorRefs = { @InterceptorRef(value = "defaultStack"),
+					"%{parentFolderId}" }) },
+			interceptorRefs = { @InterceptorRef(value = "defaultStack"),
 							@InterceptorRef(value = "token"), })
 	public String createFolder() {
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
@@ -230,10 +235,16 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 
 	// **上传文件,多文件上传*//*
 	@Action(value = "fileUpload", results = {
-			@Result(name = "success", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
+			@Result(name = "success", type = "redirect", 
+					location = "folderlist.action", params = { "parentFolderId",
 					"%{parentFolderId}" }),
 			@Result(name = "error", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
-					"%{parentFolderId}" }) })
+					"%{parentFolderId}" }) },
+			interceptorRefs = { 
+					@InterceptorRef(value = "defaultStack",params={
+							"maxinumSize","2048"
+					})
+				})
 	public String uploadFiles() {
 		String retu = "success";
 		int userId = (int) session.get("userId");
@@ -297,15 +308,14 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 
 	// 文件下载
 	public InputStream getInputStream() throws FileNotFoundException, UnsupportedEncodingException {
-		System.out.println("文件名-----------------------:" + downfileName + ";" + getDownfileName());
-
-		String realpath = folderPath + name + type;
-		// 如果下载文件名为中文，进行字符编码转换
 		/*
 		 * ServletActionContext.getResponse().setHeader("Content-Disposition",
 		 * "attachment;fileName=" + java.net.URLEncoder.encode(downfileName,
 		 * "UTF-8"));
 		 */
+		// downfileName = java.net.URLEncoder.encode(getDownfileName(),
+		// "UTF-8");
+		String realpath = folderPath + getDownfileName();
 		File file = new File(realpath);
 		InputStream inputStream = new FileInputStream(file);
 		logger.info("下载路径：" + realpath);
@@ -319,11 +329,28 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	}
 
 	// 下载
-	@Action(value = "download", results = { @Result(name = "success", type = "stream") }, params = { "contentType",
-			"application/octet-stream;charset=UTF-8", "contentDisposition", "attachment;filename=\"${downfileName}\"",
-			"inputName", "inputStream", "bufferSize", "4096" })
+	@Action(value = "download",
+			results = { 
+			@Result(name = "success", type = "stream",
+					params = {  
+					   "contentType","application/octet-stream,charset=utf-8",
+					   "contentDisposition","attachment;filename=\"${downfileName}\"", 
+					   "inputName", "inputStream", 
+					   "bufferSize", "4096" }
+			)})
 	public String downloadFile() throws Exception {
 		return "success";
+	}
+
+	/** 提供转换编码后的供下载用的文件名 */
+	public String getDownloadFileName() {
+		String downFileName = downfileName;
+		try {
+			downFileName = new String(downFileName.getBytes(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return downFileName;
 	}
 
 	private String FormetFileSize(long fileS) {// 转换文件大小
@@ -456,8 +483,8 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		this.type = type;
 	}
 
-	public String getDownfileName() {
-		return downfileName;
+	public String getDownfileName() throws UnsupportedEncodingException {
+		return URLEncoder.encode(getDownloadFileName(), "utf-8");
 	}
 
 	public void setDownfileName(String downfileName) {
@@ -471,5 +498,4 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
 }

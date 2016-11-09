@@ -141,4 +141,10 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		String dir = folder.getFolderPath();
 		boolean flag = folderOperate.deleteDirectory(dir);
 	}
+
+
+	@Override
+	public int saveFileAndFolder(FileAndFolder fileAndFolder) {
+		return (int) getSession().save(fileAndFolder);
+	}
 }

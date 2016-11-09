@@ -1,7 +1,5 @@
 package com.xeq.file.dao.impl;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -10,7 +8,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("baseDao")
 public class BaseDao {
 
 	private SessionFactory sessionFactory;

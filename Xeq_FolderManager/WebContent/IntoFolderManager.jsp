@@ -11,7 +11,7 @@
 	这是文件管理的入口，点击之后进入文件管理
 	<br>
 	<%
-		session.setAttribute("userId", 1);
+		session.setAttribute("userId", 2);
 	%>
 	<a href="folderlist.action" >点击进入文件管理</a>
 

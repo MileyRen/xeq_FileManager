@@ -14,11 +14,18 @@ $(document).ready(function() {
 	});
 });
 
+function del(parentFolderId){
+	if(confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')){
+		return true;
+	}else{
+		window.location ="folderlist.action?parentFolderId="+parentFolderId; 
+		return false;
+	}
+}
+
+
 /** 动态上传文件 */
 function addMore() {
-	
-
-	
 	var div = document.getElementById("more");
 
 	var br = document.createElement("br");
@@ -49,4 +56,5 @@ function addMore() {
 	} else {
 		document.getElementById("uploadBtn").style.display = "block";
 	}
+	
 }

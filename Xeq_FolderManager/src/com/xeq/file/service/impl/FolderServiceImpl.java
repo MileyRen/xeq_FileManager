@@ -57,4 +57,9 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 		folderDao.deleteFolder(folder);
 	}
 
+	@Override
+	public int saveFileAndFolder(FileAndFolder fileAndFolder) {
+		return folderDao.saveFileAndFolder(fileAndFolder);
+	}
+
 }

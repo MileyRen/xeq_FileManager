@@ -24,14 +24,14 @@ public class FolderOperateImpl extends BaseDao implements FolderOperate {
 				log.info("---------------Create Folder Success!---------------------");
 			} else if (file.exists()) {
 				log.info("folder is exist");
-				// System.out.println("folder is exist");
+				ret = true;
 			}
 		} catch (Exception e) {
 			log.info("file.mkdirs error");
-			// System.out.println("file.mkdirs error");
 		}
 		return ret;
 	}
+	
 
 	@Override
 	public boolean delete(String path) {
