@@ -62,17 +62,16 @@
 		</tr>
 		<s:iterator value="#session.faflists" status="FileAndFolder">
 			<s:if test="type=='folder'">
-			    <tr onclick="javascript:window.location.href='folderlist.action?parentFolderId=${id}'" >
-					<td >
+			      <tr>
+					<td onclick="return post(${id})">
 					    <img src="jquery-easyui-1.3.6/themes/icons/folder.png">
 					</td>
-					<td>${id}</td>
-					<td>${name}</td>
-					<td><s:date name="time" format="yyyy-MM-dd" /></td>
-					<td>${type}</td>
-					<td>${size}</td>
-					<td>${folderPath}</td>
-					
+					<td onclick="return post(${id})">${id}</td>
+					<td onclick="return post(${id})">${name}</td>
+					<td onclick="return post(${id})"><s:date name="time" format="yyyy-MM-dd" /></td>
+					<td onclick="return post(${id})">${type}</td>
+					<td onclick="return post(${id})">${size}</td>
+					<td onclick="return post(${id})">${folderPath}</td>
 					<td>
 			        <a href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}"
 					 onclick="return del(${parentFolderId});"
