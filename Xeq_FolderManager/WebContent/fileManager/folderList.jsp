@@ -16,6 +16,14 @@
 
 <title>Folder_List</title>
   
+  <!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+  
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/default/easyui.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/icon.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/demo/demo.css">
@@ -38,6 +46,8 @@
     <s:actionerror/>
 	<!-- 初始化页面列表结束 -->
 	<div class="easyui-panel" style="padding: 10px;">
+	
+	
 	<a href= "backStack.action" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'"
 	   onclick="javascript:window.location.href='backStack.action'">
 		Back
@@ -50,7 +60,7 @@
 		Upload
 	</a>
 </div>
-<table>
+<table class="table table-hover">
 		<tr>
 		<th></th>
 		<th>id</th>
@@ -74,13 +84,15 @@
 					<td onclick="return post(${id})">${folderPath}</td>
 					<td>
 			        <a href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}"
-					 onclick="return del(${parentFolderId});"
+					 onclick="return del();"
 					 >
 				    	<img src="jquery-easyui-1.3.6/themes/icons/no.png">
 					 </a>
 				    </td>
-				    <td><a href="#" onclick="javascript:$('#win_downFolder').window('open')" 
-				           id="btndown" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-download'">
+				    <td>
+				        <a  onclick="javascript:$('#win_downFolder').window('open')" 
+				           id="btndown"class="easyui-layout" data-options="plain:true" >
+				           <img src="jquery-easyui-1.3.6/themes/icons/download.png">
 				        </a>
 				    </td>
 				</tr>
@@ -102,8 +114,8 @@
 					</td>
 				    <td>
 	                <a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
-                     &nbsp;<img src="jquery-easyui-1.3.6/themes/icons/download.png">
-                         </a>
+                     <img src="jquery-easyui-1.3.6/themes/icons/download.png">
+                    </a>
 				     </td>
 		    	</tr>	
     	   </s:else>

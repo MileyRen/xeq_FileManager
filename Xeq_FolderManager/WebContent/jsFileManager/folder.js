@@ -14,7 +14,7 @@ $(document).ready(function() {
 	});
 });
 
-function del(parentFolderId){
+function del(){
 	if(confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')){
 		return true;
 	}else{
