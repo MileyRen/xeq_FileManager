@@ -14,23 +14,23 @@ $(document).ready(function() {
 	});
 });
 
-function del(){
-	if(confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')){
+function del() {
+	if (confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')) {
 		return true;
-	}else{
+	} else {
 		return false;
 	}
 }
 
 function post(id) {
-    var temp = document.createElement("form");
-    temp.action = "folderlist.action?parentFolderId="+id;
-    temp.method = "post";
-    temp.style.display = "none";
-    document.body.appendChild(temp);
-    temp.submit();
-    return temp;
-}   
+	var temp = document.createElement("form");
+	temp.action = "folderlist.action?parentFolderId=" + id;
+	temp.method = "post";
+	temp.style.display = "none";
+	document.body.appendChild(temp);
+	temp.submit();
+	return temp;
+}
 
 /** 动态上传文件 */
 function addMore() {
@@ -42,6 +42,7 @@ function addMore() {
 
 	input.type = "file";
 	input.name = "uploadFiles";
+	input.placeholder="Please select a file..." 
 
 	button.type = "button";
 	button.value = "Delete";
@@ -64,5 +65,5 @@ function addMore() {
 	} else {
 		document.getElementById("uploadBtn").style.display = "block";
 	}
-	
+
 }

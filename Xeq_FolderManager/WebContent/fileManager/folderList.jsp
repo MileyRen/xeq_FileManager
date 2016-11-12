@@ -43,11 +43,11 @@
 	}
 %>
 <body>
+<!-- 文件列表开始 -->
+<div >
     <s:actionerror/>
 	<!-- 初始化页面列表结束 -->
 	<div class="easyui-panel" style="padding: 10px;">
-	
-	
 	<a href= "backStack.action" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'"
 	   onclick="javascript:window.location.href='backStack.action'">
 		Back
@@ -69,6 +69,8 @@
 			<th>type</th>
 			<th>size</th>
 			<th>folderPath</th>
+			<th></th>
+			<th></th>
 		</tr>
 		<s:iterator value="#session.faflists" status="FileAndFolder">
 			<s:if test="type=='folder'">
@@ -121,7 +123,15 @@
     	   </s:else>
 	   	</s:iterator>
 	</table>
-   
+  </div>
+  <!-- 文件列表结束 -->
+  <!-- 分页效果开始 --> 
+   <div style="margin:20px 0;"></div>
+	<div class="easyui-panel">
+		<div class="easyui-pagination" data-options="total:114"></div>
+	</div>
+<!-- 分页效果结束 -->
+	
 	<!-- 下载文件夹失败 -->
 	<div id="win_downFolder" class="easyui-window" title="TIP" 
 	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
@@ -161,16 +171,15 @@
 	<!-- 创建文件夹窗口 -->
 	<div id="win_add" class="easyui-window" title="Create New Folder" 
 	     data-options="modal:true,closed:true,iconCls:'icon-add'"
-         style="width: 400px; height: 150px;" closable="true" closed="true">
-	<s:form action="addFolder" id="addF" style="padding:10px 20px 10px 80px;" method ="post">
+         style="width: 350px; height: 150px;" closable="true" closed="true">
+	<s:form action="addFolder" id="addF" style="padding:10px 20px 10px 40px;" method ="post">
 		<s:token />
 		<s:fielderror/>
 		<input type="hidden" name="parentFolderId" value=${session.parentId }>
 		<input type="hidden" name="folderPath" value=${session.parentPath }>
 		<s:fielderror name="name"/>
-		Folder Name:
-		<input name="name" id="name" type="text" required>
-		<br>
+		<input name="name" id="name" type="text" class="form-control" id="firstname" 
+				   placeholder="Please enter a folder name..." required>
 		<br>
 		<a class="easyui-linkbutton" icon="icon-add" onclick="javascript:$('form#addF').submit()">
 			Submit
