@@ -32,6 +32,16 @@ function post(id) {
 	return temp;
 }
 
+function into(id) {
+	var temp = document.createElement("form");
+	temp.action = "pageList.action?parentFolderId=" + id;
+	temp.method = "post";
+	temp.style.display = "none";
+	document.body.appendChild(temp);
+	temp.submit();
+	return temp;
+}
+
 /** 动态上传文件 */
 function addMore() {
 	var div = document.getElementById("more");
@@ -42,7 +52,7 @@ function addMore() {
 
 	input.type = "file";
 	input.name = "uploadFiles";
-	input.placeholder="Please select a file..." 
+	input.placeholder = "Please select a file..."
 
 	button.type = "button";
 	button.value = "Delete";

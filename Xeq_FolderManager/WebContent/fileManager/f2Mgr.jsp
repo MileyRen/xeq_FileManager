@@ -1,22 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@page import="java.util.*"%>
-<%@page import="java.net.URLDecoder" %>
-<%@page import="com.xeq.file.domain.FileAndFolder"%>
 <%@taglib uri="/struts-tags" prefix="s"%>
+<%@page import="com.xeq.file.domain.FileAndFolder"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
 			+ path + "/";
 %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
 <head>
-<base href="<%=basePath%>">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<title>Folder_List</title>
-  
+<title>Folder And File List</title>
   <!-- 新 Bootstrap 核心 CSS 文件 -->
 <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
 <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
@@ -31,23 +32,9 @@
  	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.min.js"></script>
 	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="jsFileManager/folder.js"></script>
-<script type="text/javascript">
-</script>
 </head>
-<%-- <%
-	//初始化页面
-	Integer id = (Integer) request.getSession().getAttribute("parentId");
-	if (id == null || id.equals("")) {
-		session.setAttribute("userId", 1);
-		response.sendRedirect("folderlist");
-		return;
-	}
-%> --%>
 <body>
-<!-- 文件列表开始 -->
-<div >
-
-    <s:actionerror/>
+	<s:actionerror/>
 	<!-- 初始化页面列表结束 -->
 	<div class="easyui-panel" style="padding: 10px;">
 	<a href= "backStack.action" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'"
@@ -61,8 +48,8 @@
 	<a href="#" id="btnupload" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-upload'">
 		Upload
 	</a>
-</div>
-<table class="table table-hover">
+    </div>
+     <table class="table table-hover">
 		<tr>
 		<th></th>
 		<th>id</th>
@@ -74,19 +61,19 @@
 			<th></th>
 			<th></th>
 		</tr>
-		<s:iterator value="#session.faflists" status="FileAndFolder">
+		<s:iterator value="#session.fileList" status="FileAndFolder">
 			<s:if test="type=='folder'">
 			      <tr>
-					<td onclick="return post(${id})">
+					<td onclick="return into(${id})">
 					 <img class="icon tree-folder"/>
 					</td> 
-					<td onclick="return post(${id})">${id}</td>
-					<td onclick="return post(${id})">${name}</td>
-					<td onclick="return post(${id})"><s:date name="time" format="yyyy-MM-dd" /></td>
-					<td onclick="return post(${id})">${type}</td>
-					<td onclick="return post(${id})">${size}</td>
-					<td onclick="return post(${id})">${folderPath}</td>
-					<td onclick="return post(${id})">
+					<td onclick="return into(${id})">${id}</td>
+					<td onclick="return into(${id})">${name}</td>
+					<td onclick="return into(${id})"><s:date name="time" format="yyyy-MM-dd" /></td>
+					<td onclick="return into(${id})">${type}</td>
+					<td onclick="return into(${id})">${size}</td>
+					<td onclick="return into(${id})">${folderPath}</td>
+					<td >
 			        <a href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}"
 					 onclick="return del();"
 					 >
@@ -121,28 +108,27 @@
     	   </s:else>
 	   	</s:iterator>
 	</table>
-  </div>
-  <!-- 文件列表结束 -->
-  <!-- 分页效果开始 --> 
+	<!-- 文件列表结束 -->
+   <!-- 分页效果开始 --> 
    <div style="margin:20px 0;"></div>
    <div class="easyui-panel"   style=" height: 50px;padding:10px 20px 10px 40px;">
-	<select name="Pagesize" required>
-	   <option value ="one" selected="selected">10</option>
-       <option value ="two">20</option>
-       <option value="th">50</option>
-	</select>
-	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-first'"></a>
-	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-prev'" ></a>
+	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-first'" 
+	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=1'"></a>
+	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-prev'" 
+	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage-1 }'"></a>
 	
-	<input name="pageNum" value="1" style="width:50px" >
+ [ ${pagesource.currentPage} of ${pagesource.totalPages }] 
 	
-	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-next'" ></a>
-	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-last'" ></a>
+	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-next'" 
+	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage+1 }'"></a>
+	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-last'" 
+	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.totalPages }'"></a>
+		[total:${pagesource.totalRows}]
 	</div>
-<!-- 分页效果结束 -->
+   <!-- 分页效果结束 -->
 	
-	
-	
+ 
+ 
 	<!-- 下载文件夹失败 -->
 	<div id="win_downFolder" class="easyui-window" title="TIP" 
 	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
@@ -202,5 +188,6 @@
 	</s:form>
    </div>
    <!-- 创建文件夹窗口结束 -->
+ 
 </body>
 </html>

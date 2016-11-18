@@ -2,6 +2,7 @@ package com.xeq.file.action;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.apache.log4j.Logger;
 import org.apache.struts2.convention.annotation.Action;
@@ -30,7 +31,8 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private FolderService folderService;
 	@Autowired
 	private PageSource pagesource;
-	
+	/** 栈，用于存放访问次序，若一个文件夹被删除，则应删除栈中所有该文件夹及子文件夹 */
+	private static final Stack<Integer> preAndnext = new Stack<Integer>();
 	private static final long serialVersionUID = 2755957955541896021L;
 	private static Logger logger = Logger.getLogger(FileMgrAction.class);
 	private Map<String, Object> session;
@@ -42,11 +44,7 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private String type;
 	// 分页
 	private String pageTag;
-	
-	//private Integer pageSize;
-	//private int currentPage; // 当前页数
-
-	@Action(value = "pageList", results = { @Result(name = "pagerlist", location = "/fileManager/testPage.jsp") })
+	@Action(value = "pageList", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
 	public String getPage() throws Exception {
 		logger.debug("------查询结果-----------");
 		int userId = (int) session.get("userId");
@@ -96,27 +94,48 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			logger.info(pagesource.toString());
 			list = folderService.pageReviwe(pagesource, hql);
 		}
+		folderPath = folderService.parentPath(parentFolderId);
+		if (preAndnext.size() > 0) {
+			Integer temp = preAndnext.get(preAndnext.size() - 1);
+			if (temp != parentFolderId) {
+				preAndnext.add(parentFolderId);// 如果该parentId与上一级不同将此时的父文件夹id入栈
+			}
+		} else {
+			preAndnext.add(parentFolderId);
+		}
+		
 		session.put("fileList", list);
 		session.put("pagesource", pagesource);
+		session.put("parentPath", folderPath);
+		session.put("parentId", parentFolderId);
+		
 		return "pagerlist";
 	}
+	
+	@Action(value = "backStack", results = { @Result(name = "success", location = "/fileManager/f2Mgr.jsp") })
+	public String getBack() {
+		Integer userId = (Integer) session.get("userId");
+		// 初始化pid
+		Integer parentId = folderService.getByFolderOrFiles(userId, -1).get(0).getId();
+		Integer pid = parentId;// 初始化为第一页
+		try {
+			preAndnext.pop();// 当前父文件夹出栈
+			pid = preAndnext.get(preAndnext.size() - 1);// 获得上一级文件夹
+		} catch (Exception e) {// 若数组越界，则返回初始化值
+			pid = parentId;
+		}
+		folderPath = folderService.parentPath(pid);
+		
+		List<FileAndFolder> faflists = folderService.getByFolderOrFiles(userId, pid);
 
-	/*public int getCurrentPage() {
-		return currentPage;
+		session.put("parentPath", folderPath);
+		session.put("parentId", pid);
+		session.put("fileList", faflists);
+
+		return "success";
 	}
-
-	public void setCurrentPage(int currentPage) {
-		this.currentPage = currentPage;
-	}*/
-
-	/*public Integer getPageSize() {
-		return pageSize;
-	}
-
-	public void setPageSize(Integer pageSize) {
-		this.pageSize = pageSize;
-	}
-*/
+	
+	
 	public String getPageTag() {
 		return pageTag;
 	}

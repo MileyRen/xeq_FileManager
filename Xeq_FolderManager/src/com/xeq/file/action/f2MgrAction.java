@@ -3,7 +3,6 @@ package com.xeq.file.action;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -11,17 +10,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.InterceptorRef;
-import org.apache.struts2.convention.annotation.InterceptorRefs;
 import org.apache.struts2.convention.annotation.Namespace;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
@@ -37,18 +33,13 @@ import com.xeq.file.domain.FileAndFolder;
 import com.xeq.file.domain.PageSource;
 import com.xeq.file.service.FolderService;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 @Namespace("/")
 @ParentPackage("struts-default")
-@Controller("folderAction")
+@Controller("f2MgrAction")
 @Scope("prototype")
-public class FolderAction extends ActionSupport implements SessionAware, ModelDriven<FileAndFolder>, Preparable {
+public class f2MgrAction extends ActionSupport implements SessionAware, ModelDriven<FileAndFolder>, Preparable {
 	private static final long serialVersionUID = -5640743370611684124L;
-	private static Logger logger = Logger.getLogger(FolderAction.class);
-	/** 栈，用于存放访问次序，若一个文件夹被删除，则应删除栈中所有该文件夹及子文件夹 */
-	private static final Stack<Integer> preAndnext = new Stack<Integer>();
+	private static Logger logger = Logger.getLogger(f2MgrAction.class);
 
 	@Autowired
 	private FolderService folderService;
@@ -69,73 +60,14 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	private List<String> fileSize;
 	private String targetFileDir;
 	private int filesCount;
-
-	// 分页
-	private String pageTag;
-	
 	
 	// 下载
 	private String downfileName;
 
-	
-	/*** 显示当前级别的文件结果 */
-	//@Action(value = "folderlist", results = { @Result(name = "folderlist", location = "/fileManager/folderList.jsp") })
-	public String FolderList() {
 
-		logger.debug("------查询结果-----------");
-		int userId = (int) session.get("userId");
-		List<FileAndFolder> faflists = new ArrayList<FileAndFolder>();
-		if (parentFolderId == null) {
-			faflists = folderService.getByFolderOrFiles(userId, -1);
-			parentFolderId = faflists.get(0).getId();// 将根目录的id置为parentFolderId
-		}
-		// 从根目录下开始查找
-		faflists = folderService.getByFolderOrFiles(userId, parentFolderId);
-
-		JSONArray jsonFile = FileListJson(faflists);
-		session.put("jsonFile", jsonFile);
-
-		folderPath = folderService.parentPath(parentFolderId);
-
-		if (preAndnext.size() > 0) {
-			Integer temp = preAndnext.get(preAndnext.size() - 1);
-			if (temp != parentFolderId) {
-				preAndnext.add(parentFolderId);// 如果该parentId与上一级不同将此时的父文件夹id入栈
-			}
-		} else {
-			preAndnext.add(parentFolderId);
-		}
-
-		session.put("parentPath", folderPath);
-		session.put("parentId", parentFolderId);
-		session.put("faflists", faflists);
-		return "folderlist";
-	}
-
-	// 返回一个json字符串
-	private JSONArray FileListJson(List<FileAndFolder> list) {
-		JSONArray jsonArray = new JSONArray();
-
-		for (FileAndFolder fileAndFolder : list) {
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("jid", fileAndFolder.getId());
-			jsonObject.put("jname", fileAndFolder.getName());
-			jsonObject.put("jfolderPath", fileAndFolder.getFolderPath());
-			jsonObject.put("jparentFolderId", fileAndFolder.getParentFolderId());
-			jsonObject.put("jmappingPath", fileAndFolder.getMappingPath());
-			jsonObject.put("jsize", fileAndFolder.getSize());
-			jsonObject.put("jtime", fileAndFolder.getTime());
-			jsonObject.put("jtype", fileAndFolder.getType());
-			jsonObject.put("userId", fileAndFolder.getUserId());
-			jsonArray.add(jsonObject);
-		}
-		logger.info("jsonArray---------------:" + jsonArray);
-		return jsonArray;
-	}
-
-	//@Action(value = "delete", results = {
-	//		@Result(name = "success", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
-	//				"%{parentFolderId}" }) })
+	@Action(value = "delete", results = {
+			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) })
 	public String deleteFile() {
 		logger.debug("------删除单个文件-----------\n");
 		int userId = (int) session.get("userId");
@@ -145,9 +77,9 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		return "success";
 	}
 
-	//@Action(value = "deleteDir", results = {
-	//		@Result(name = "success", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
-	//				"%{parentFolderId}" }) })
+	@Action(value = "deleteDir", results = {
+			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) })
 	public String deleteFolder() {
 		logger.debug("------删除文件夹-----------\n");
 		int userId = (int) session.get("userId");
@@ -160,40 +92,15 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		return "success";
 	}
 
-	//
-	//
-	// 返回上一级
-	//@Action(value = "backStack", results = { @Result(name = "success", location = "/fileManager/folderList.jsp") })
-	public String getBack() {
-		Integer userId = (Integer) session.get("userId");
-		// 初始化pid
-		Integer parentId = folderService.getByFolderOrFiles(userId, -1).get(0).getId();
-		Integer pid = parentId;// 初始化为第一页
-		try {
-			preAndnext.pop();// 当前父文件夹出栈
-			pid = preAndnext.get(preAndnext.size() - 1);// 获得上一级文件夹
-		} catch (Exception e) {// 若数组越界，则返回初始化值
-			pid = parentId;
-		}
-		folderPath = folderService.parentPath(pid);
-		List<FileAndFolder> faflists = folderService.getByFolderOrFiles(userId, pid);
-
-		session.put("parentPath", folderPath);
-		session.put("parentId", pid);
-		session.put("faflists", faflists);
-
-		return "success";
-	}
-
 	/***/
 	// 直接在类名称的上端写入即可，value中指定要引入的拦截器的名称即可
-	//@Action(value = "addFolder", results = {
-	//		@Result(name = "createFolder", type = "redirect", location = "folderlist.action", params = {
-	//				"parentFolderId", "%{parentFolderId}" }),
-	//		@Result(name = "error", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
-	//				"%{parentFolderId}" }) },
-	//		interceptorRefs = { @InterceptorRef(value = "defaultStack"),
-	//						@InterceptorRef(value = "token"), })
+	@Action(value = "addFolder", results = {
+			@Result(name = "createFolder", type = "redirect", location = "pageList.action", params = {
+					"parentFolderId", "%{parentFolderId}" }),
+			@Result(name = "error", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) },
+			interceptorRefs = { @InterceptorRef(value = "defaultStack"),
+							@InterceptorRef(value = "token"), })
 	public String createFolder() {
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
 		logger.debug("--------创建文件夹------------");
@@ -242,17 +149,17 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	}
 
 	// **上传文件,多文件上传*//*
-	//@Action(value = "fileUpload", results = {
-	//		@Result(name = "success", type = "redirect", 
-	//				location = "folderlist.action", params = { "parentFolderId",
-	//				"%{parentFolderId}" }),
-	//		@Result(name = "error", type = "redirect", location = "folderlist.action", params = { "parentFolderId",
-	//				"%{parentFolderId}" }) },
-	//		interceptorRefs = { 
-	///				@InterceptorRef(value = "defaultStack",params={
-	//						"maxinumSize","2048"
-	//				})
-	//			})
+	@Action(value = "fileUpload", results = {
+			@Result(name = "success", type = "redirect", 
+					location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}" }),
+			@Result(name = "error", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) },
+			interceptorRefs = { 
+					@InterceptorRef(value = "defaultStack",params={
+							"maxinumSize","2048"
+					})
+				})
 	public String uploadFiles() {
 		String retu = "success";
 		int userId = (int) session.get("userId");
@@ -316,13 +223,6 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 
 	// 文件下载
 	public InputStream getInputStream() throws FileNotFoundException, UnsupportedEncodingException {
-		/*
-		 * ServletActionContext.getResponse().setHeader("Content-Disposition",
-		 * "attachment;fileName=" + java.net.URLEncoder.encode(downfileName,
-		 * "UTF-8"));
-		 */
-		// downfileName = java.net.URLEncoder.encode(getDownfileName(),
-		// "UTF-8");
 		String realpath = folderPath + getDownfileName();
 		File file = new File(realpath);
 		InputStream inputStream = new FileInputStream(file);
@@ -337,15 +237,15 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	}
 
 	// 下载
-	//@Action(value = "download",
-	//		results = { 
-	//		@Result(name = "success", type = "stream",
-	//				params = {  
-	//				   "contentType","application/octet-stream,charset=utf-8",
-	//				   "contentDisposition","attachment;filename=\"${downfileName}\"", 
-	//				   "inputName", "inputStream", 
-	//				   "bufferSize", "4096" }
-	//		)})
+	@Action(value = "download",
+			results = { 
+			@Result(name = "success", type = "stream",
+					params = {  
+					   "contentType","application/octet-stream,charset=utf-8",
+					   "contentDisposition","attachment;filename=\"${downfileName}\"", 
+					   "inputName", "inputStream", 
+					   "bufferSize", "4096" }
+			)})
 	public String downloadFile() throws Exception {
 		return "success";
 	}
@@ -415,18 +315,6 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 	public FileAndFolder getModel() {
 		return model;
 	}
-
-	// @Validations(requiredStrings = {
-	// @RequiredStringValidator(fieldName = "name", message = "FolderName id
-	// notnull.") }, regexFields = {
-	// @RegexFieldValidator(fieldName = "name", expression = "[^?!\\/;*?“<>]+",
-	// message = "FolderName cant't contions '/','\',';','*','”','<','>'") })
-	/*
-	 * @Validations(requiredStrings = {
-	 * 
-	 * @RequiredStringValidator(fieldName = "name", message =
-	 * "FolderName id not null.") })
-	 */
 	public String getName() {
 		return name;
 	}
@@ -515,13 +403,4 @@ public class FolderAction extends ActionSupport implements SessionAware, ModelDr
 		this.pagesource = pagesource;
 	}
 
-	public String getPageTag() {
-		return pageTag;
-	}
-
-	public void setPageTag(String pageTag) {
-		this.pageTag = pageTag;
-	}
-	
-	
 }

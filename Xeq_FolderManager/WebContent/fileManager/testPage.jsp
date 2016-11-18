@@ -43,11 +43,12 @@
 		<tr>
 		<td>每页显示：<input name="pagesource.pagesize"   value="${pagesource.pageSize}" >
         </td>
-        <td>当前页：  <input name="pagesource.currentPage"   value="${pagesource.currentPage}" >  </td>
-		<td colspan="4">
+		<td colspan="5">
+		<a	href="pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=1">首页</a>
 		<a	href="pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage-1 }">上一页</a>
-				[每页显示：${pagesource.pageSize}条] [ 第${pagesource.currentPage}页 /共${pagesource.totalPages } 页] 
-	    <a href="pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage+1 }">下一页</a>
+				[每页显示：${pagesource.pageSize}条] [ ${pagesource.currentPage} of ${pagesource.totalPages }] 
+	     <a href="pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage+1 }">下一页</a>
+	     <a href="pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.totalPages }">尾页</a>
 	    </td>
 		</tr>
 	</table>
