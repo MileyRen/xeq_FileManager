@@ -39,8 +39,8 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 
 	@Override
 	public int uploadFile(Integer parentFolderId, String filename, String size, String type, String folderPath,
-			Integer userId, String mappingPath,FileAndFolder fileObject) {
-		return folderDao.uploadFile(parentFolderId, filename, size, type, folderPath, userId, mappingPath,fileObject);
+			Integer userId, String mappingPath, FileAndFolder fileObject) {
+		return folderDao.uploadFile(parentFolderId, filename, size, type, folderPath, userId, mappingPath, fileObject);
 	}
 
 	@Override
@@ -71,6 +71,11 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 	@Override
 	public List<FileAndFolder> getAll(String hql) {
 		return folderDao.getAll(hql);
+	}
+
+	@Override
+	public void update(Object obj) {
+		folderDao.update(obj);
 	}
 
 }

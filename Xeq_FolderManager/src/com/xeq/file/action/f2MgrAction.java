@@ -63,11 +63,12 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	
 	// 下载
 	private String downfileName;
-
+	// 分页
+	private String pageTag;
 
 	@Action(value = "delete", results = {
 			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
-					"%{parentFolderId}" }) })
+					"%{parentFolderId}","pagesource.currentPage","%{pagesource.currentPage}"}) })
 	public String deleteFile() {
 		logger.debug("------删除单个文件-----------\n");
 		int userId = (int) session.get("userId");
@@ -151,10 +152,14 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	// **上传文件,多文件上传*//*
 	@Action(value = "fileUpload", results = {
 			@Result(name = "success", type = "redirect", 
-					location = "pageList.action", params = { "parentFolderId",
-					"%{parentFolderId}" }),
+					location = "pageList.action", 
+					params = { 
+							"parentFolderId","%{parentFolderId}" 
+							,"pagesource.currentPage","%{pagesource.currentPage}"
+							}
+			),
 			@Result(name = "error", type = "redirect", location = "pageList.action", params = { "parentFolderId",
-					"%{parentFolderId}" }) },
+					"%{parentFolderId}" ,"pagesource.currentPage","%{pagesource.currentPage}"}) },
 			interceptorRefs = { 
 					@InterceptorRef(value = "defaultStack",params={
 							"maxinumSize","2048"
@@ -401,6 +406,14 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 
 	public void setPagesource(PageSource pagesource) {
 		this.pagesource = pagesource;
+	}
+
+	public String getPageTag() {
+		return pageTag;
+	}
+
+	public void setPageTag(String pageTag) {
+		this.pageTag = pageTag;
 	}
 
 }

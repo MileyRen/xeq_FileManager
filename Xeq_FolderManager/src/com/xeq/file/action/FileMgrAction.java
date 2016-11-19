@@ -69,7 +69,7 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 
 		pagesource.setTotalRows(all_list.size());// 获取总行数
 
-		if (pageTag == null) {
+		if (pageTag!=null) {
 			//说明是首次加载
 			pagesource.init(all_list.size(), (new BaseDao()).pageSize());// 初始化，用以获取总页数
 			pagesource.setCurrentPage(1);
@@ -112,8 +112,8 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		return "pagerlist";
 	}
 	
-	@Action(value = "backStack", results = { @Result(name = "success", location = "/fileManager/f2Mgr.jsp") })
-	public String getBack() {
+	@Action(value = "backStack", results = {@Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
+	public String getBack() throws Exception {
 		Integer userId = (Integer) session.get("userId");
 		// 初始化pid
 		Integer parentId = folderService.getByFolderOrFiles(userId, -1).get(0).getId();
@@ -126,13 +126,14 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		}
 		folderPath = folderService.parentPath(pid);
 		
-		List<FileAndFolder> faflists = folderService.getByFolderOrFiles(userId, pid);
-
+		//List<FileAndFolder> faflists = folderService.getByFolderOrFiles(userId, pid);
 		session.put("parentPath", folderPath);
 		session.put("parentId", pid);
-		session.put("fileList", faflists);
-
-		return "success";
+		setParentFolderId(pid);
+		
+		logger.info("上一页的parentFolderId="+pid);
+		//调用getPage
+		return getPage();
 	}
 	
 	

@@ -37,15 +37,15 @@
 	<s:actionerror/>
 	<!-- 初始化页面列表结束 -->
 	<div class="easyui-panel" style="padding: 10px;">
-	<a href= "backStack.action" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'"
+	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'"
 	   onclick="javascript:window.location.href='backStack.action'">
 		Back
 	</a>
-	<a href="#" id="btncreate" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'">
+	<a id="btncreate" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'">
 		Create Folder
 	</a>
 	
-	<a href="#" id="btnupload" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-upload'">
+	<a id="btnupload" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-upload'">
 		Upload
 	</a>
     </div>
@@ -58,6 +58,7 @@
 			<th>type</th>
 			<th>size</th>
 			<th>folderPath</th>
+			<th></th>
 			<th></th>
 			<th></th>
 		</tr>
@@ -74,7 +75,7 @@
 					<td onclick="return into(${id})">${size}</td>
 					<td onclick="return into(${id})">${folderPath}</td>
 					<td >
-			        <a href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}"
+			        <a href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
 					 onclick="return del();"
 					 >
 				    	<img src="jquery-easyui-1.3.6/themes/icons/no.png">
@@ -82,47 +83,54 @@
 				    </td>
 				    <td>
 				    </td>
+				    <td><a href="#"> <img src="jquery-easyui-1.3.6/themes/icons/pencil.png"></a></td>
 				</tr>
 				</s:if>
-				<s:else>
+			 </s:iterator>
+				<%-- <s:else> --%>
+			<s:iterator value="#session.fileList" status="FileAndFolder">
+			<s:if test="type!='folder'">
 				<tr>
-				<td> <img class="icon tree-file"/></td>
-					<td>${id}</td>
+				    <td> <img class="icon tree-file"/></td>
+			        <td>${id}</td>
 					<td>${name}</td>
 					<td><s:date name="time" format="yyyy-MM-dd" /></td>
 					<td>${type}</td>
 					<td>${size}</td>
 					<td>${folderPath}</td>
-					<td>
-					<a href="delete.action?id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}" 
+			        <td>
+					<a href="delete.action?&id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}" 
 					onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;" >
 					    <img src="jquery-easyui-1.3.6/themes/icons/no.png">
 					</a>
-					</td>
+				    </td>
 				    <td>
 	                <a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
                      <img src="jquery-easyui-1.3.6/themes/icons/download.png">
                     </a>
-				     </td>
+			        </td>
+			        <td><a href="#"> <img src="jquery-easyui-1.3.6/themes/icons/pencil.png"></a></td>
 		    	</tr>	
-    	   </s:else>
-	   	</s:iterator>
+    	   <%-- </s:else> --%>
+    	   </s:if>	
+			</s:iterator>	
+	
 	</table>
 	<!-- 文件列表结束 -->
    <!-- 分页效果开始 --> 
    <div style="margin:20px 0;"></div>
    <div class="easyui-panel"   style=" height: 50px;padding:10px 20px 10px 40px;">
 	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-first'" 
-	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=1'"></a>
+	   onclick="javascript:window.location.href='pageList.action?&parentFolderId=${parentFolderId}&pagesource.currentPage=1'"></a>
 	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-prev'" 
-	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage-1 }'"></a>
+	   onclick="javascript:window.location.href='pageList.action?&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage-1 }'"></a>
 	
  [ ${pagesource.currentPage} of ${pagesource.totalPages }] 
 	
 	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-next'" 
-	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage+1 }'"></a>
+	   onclick="javascript:window.location.href='pageList.action?&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage+1 }'"></a>
 	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-last'" 
-	   onclick="javascript:window.location.href='pageList.action?pageTag=1&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.totalPages }'"></a>
+	   onclick="javascript:window.location.href='pageList.action?&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.totalPages }'"></a>
 		[total:${pagesource.totalRows}]
 	</div>
    <!-- 分页效果结束 -->
@@ -158,7 +166,7 @@
 		<s:fielderror/>
 		<input type="hidden" name="parentFolderId" value=${session.parentId }>
 		<input type="hidden" name="folderPath" value=${session.parentPath }>
-		
+		<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
 		<div id="more"></div>
 	</s:form>
 		
@@ -174,6 +182,7 @@
 		<s:fielderror/>
 		<input type="hidden" name="parentFolderId" value=${session.parentId }>
 		<input type="hidden" name="folderPath" value=${session.parentPath }>
+		<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
 		<s:fielderror name="name"/>
 		<input name="name" id="name" type="text" class="form-control" id="firstname" 
 				   placeholder="Please enter a folder name..." required>

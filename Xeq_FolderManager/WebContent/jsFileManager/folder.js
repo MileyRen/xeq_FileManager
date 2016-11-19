@@ -34,7 +34,7 @@ function post(id) {
 
 function into(id) {
 	var temp = document.createElement("form");
-	temp.action = "pageList.action?parentFolderId=" + id;
+	temp.action = "pageList.action?pageTag=1&parentFolderId=" + id;
 	temp.method = "post";
 	temp.style.display = "none";
 	document.body.appendChild(temp);

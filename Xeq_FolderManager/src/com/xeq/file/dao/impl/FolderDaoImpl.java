@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,21 +54,22 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		int ret = -1;
 
 		// if (repet == false) {
-		ret = (int) getSession().save(fileAndFolder);// 插入数据库
-		boolean flag = false;
-		if (parentFolderId == -1) {
-			flag = folderOperate.createRealFolder(fileAndFolder.getName(), rootPath());
-		}
+			ret = (int) getSession().save(fileAndFolder);// 插入数据库
+			
+			boolean flag = false;
+			if (parentFolderId == -1) {
+				flag = folderOperate.createRealFolder(fileAndFolder.getName(), rootPath());
+			}
 
-		flag = folderOperate.createRealFolder(fileAndFolder.getName(), folderPath);
-		if (flag == false) {
-			// 若创建文件夹失败，则删除已经插入数据库的信息
-			//
-			//
-			//
-			//
-		}
-		// }
+			flag = folderOperate.createRealFolder(fileAndFolder.getName(), folderPath);
+			if (flag == false) {
+				// 若创建文件夹失败，则删除已经插入数据库的信息
+				//
+				//
+				//
+				//
+			}
+			// }
 
 		return ret;
 	}
@@ -163,6 +166,11 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		Query query = getSession().createQuery(hql);
 		List<FileAndFolder> list = query.list();
 		return list;
+	}
+
+	@Override
+	public void  update(Object obg) {
+		getSession().save(obg);
 	}
 
 }

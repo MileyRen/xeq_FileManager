@@ -1,11 +1,11 @@
 package com.xeq.file.test;
 
+import java.io.File;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.tomcat.jni.File;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -21,6 +21,17 @@ public class TestCase extends BaseDao {
 	private FolderService folderService;
 	private FolderOperate folderOperate;
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+
+	@Test
+	public void testmove() {
+		File fold = new File("e://java//java");// 某路径下的文件
+		String strNewPath = "e://java//new file1//";// 新路径
+		File fnewpath = new File(strNewPath);
+		if (!fnewpath.exists())
+			System.out.println("不存在该路径");
+		File fnew = new File(strNewPath + fold.getName());
+		fold.renameTo(fnew);
+	}
 
 	@Test
 	public void testDel() {
@@ -81,11 +92,11 @@ public class TestCase extends BaseDao {
 					+ fileAndFolder.getParentFolderId() + ",time=" + fileAndFolder.getTime());
 		}
 	}
-	
+
 	@Test
-	public void del(){
+	public void del() {
 		folderService = (FolderService) context.getBean("FolderService");
-		FileAndFolder folder = new  FileAndFolder();
+		FileAndFolder folder = new FileAndFolder();
 		folder.setId(15);
 		folderService.deleteFolder(folder);
 	}

@@ -1,14 +1,14 @@
 package com.xeq.file.dao;
 
-import java.io.File;
 import java.util.List;
-
-import org.omg.PortableInterceptor.INACTIVE;
 
 import com.xeq.file.domain.FileAndFolder;
 import com.xeq.file.domain.PageSource;
 
 public interface FolderDao {
+
+	/** 更新数据库文件 */
+	void update(Object obj);
 
 	/**
 	 * 查找当前级别所有文件及文件夹

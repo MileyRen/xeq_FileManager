@@ -10,12 +10,14 @@
 <body>
 	这是文件管理的入口，点击之后进入文件管理
 	<br>
+
+
 	<%
 		session.setAttribute("userId", 1);
 	%>
 	<a href="folderlist.action">点击进入文件管理</a>
 	<br>
-	<a href="pageList.action">分页测试</a>
+	<a href="pageList.action?pageTag=1">分页测试</a>
 	<br>
 
 </body>

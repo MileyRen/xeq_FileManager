@@ -31,7 +31,6 @@ public class FolderOperateImpl extends BaseDao implements FolderOperate {
 		}
 		return ret;
 	}
-	
 
 	@Override
 	public boolean delete(String path) {
@@ -90,5 +89,18 @@ public class FolderOperateImpl extends BaseDao implements FolderOperate {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean removeFileOrFolder(String fromPath, String toPath) {
+		File fold = new File(fromPath);// 某路径下的文件
+		File fnewpath = new File(toPath);
+		if (!fnewpath.exists()) {
+			log.info("移动目标文件夹不存在");
+			return false;
+		}
+		File fnew = new File(toPath + fold.getName());
+		fold.renameTo(fnew);
+		return true;
 	}
 }
