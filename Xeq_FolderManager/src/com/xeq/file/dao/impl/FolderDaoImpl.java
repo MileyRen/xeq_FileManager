@@ -1,5 +1,6 @@
 package com.xeq.file.dao.impl;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -54,22 +55,22 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		int ret = -1;
 
 		// if (repet == false) {
-			ret = (int) getSession().save(fileAndFolder);// 插入数据库
-			
-			boolean flag = false;
-			if (parentFolderId == -1) {
-				flag = folderOperate.createRealFolder(fileAndFolder.getName(), rootPath());
-			}
+		ret = (int) getSession().save(fileAndFolder);// 插入数据库
 
-			flag = folderOperate.createRealFolder(fileAndFolder.getName(), folderPath);
-			if (flag == false) {
-				// 若创建文件夹失败，则删除已经插入数据库的信息
-				//
-				//
-				//
-				//
-			}
-			// }
+		boolean flag = false;
+		if (parentFolderId == -1) {
+			flag = folderOperate.createRealFolder(fileAndFolder.getName(), rootPath());
+		}
+
+		flag = folderOperate.createRealFolder(fileAndFolder.getName(), folderPath);
+		if (flag == false) {
+			// 若创建文件夹失败，则删除已经插入数据库的信息
+			//
+			//
+			//
+			//
+		}
+		// }
 
 		return ret;
 	}
@@ -169,8 +170,8 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 	}
 
 	@Override
-	public void  update(Object obg) {
-		getSession().save(obg);
+	public void update(FileAndFolder obg) {
+		Session session = getSession();
+		session.saveOrUpdate(obg);
 	}
-
 }

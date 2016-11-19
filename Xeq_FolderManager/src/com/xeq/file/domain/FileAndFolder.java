@@ -56,7 +56,7 @@ public class FileAndFolder implements java.io.Serializable {
 
 	@OneToMany(targetEntity = FileAndFolder.class, orphanRemoval = true)
 	@JoinColumn(name = "deleteFlag")
-	@Cascade(value = { CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.ALL })
+	@Cascade(value = { CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.ALL ,CascadeType.SAVE_UPDATE})
 	private Set<FileAndFolder> deleteFlagSets = new HashSet<FileAndFolder>();
 
 	/*
@@ -188,6 +188,13 @@ public class FileAndFolder implements java.io.Serializable {
 
 	public void setMappingPath(String mappingPath) {
 		this.mappingPath = mappingPath;
+	}
+
+	@Override
+	public String toString() {
+		return "FileAndFolder [id=" + id + ", parentFolderId=" + parentFolderId + ", name=" + name + ", time=" + time
+				+ ", size=" + size + ", userId=" + userId + ", type=" + type + ", folderPath=" + folderPath
+				+ ", deleteFlag=" + deleteFlag + ", mappingPath=" + mappingPath + "]";
 	}
 
 }

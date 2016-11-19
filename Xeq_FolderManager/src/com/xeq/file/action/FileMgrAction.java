@@ -42,8 +42,18 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private String folderPath;// 父文件夹路径，用于新建文件夹时
 	private String name;
 	private String type;
+	
 	// 分页
 	private String pageTag;
+	
+	public String moveFile(){
+		logger.info("----------移动文件-----------");
+		int userId = (int) session.get("userId");
+		
+		return "success";
+	}
+	
+	
 	@Action(value = "pageList", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
 	public String getPage() throws Exception {
 		logger.debug("------查询结果-----------");

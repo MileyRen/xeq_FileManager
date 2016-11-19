@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -99,6 +100,17 @@ public class TestCase extends BaseDao {
 		FileAndFolder folder = new FileAndFolder();
 		folder.setId(15);
 		folderService.deleteFolder(folder);
+	}
+
+	@Test
+	public void testUpdate() {
+		folderService = (FolderService) context.getBean("FolderService");
+		FileAndFolder f = folderService.getById(2);
+		System.out.println(f.toString());
+		f.setName("name_Folder");
+		System.out.println(f.toString());
+		folderService.update(f);
+		
 	}
 
 }

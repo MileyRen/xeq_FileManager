@@ -8,7 +8,7 @@ import com.xeq.file.domain.PageSource;
 public interface FolderService {
 
 	/** 更新数据库文件 */
-	void update(Object obj);
+	void update(FileAndFolder obj);
 
 	/** 查找当前级别所有文件及文件夹 */
 	List<FileAndFolder> getAll(String hql);

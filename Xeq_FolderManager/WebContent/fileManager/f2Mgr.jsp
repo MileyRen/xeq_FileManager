@@ -11,6 +11,7 @@
 			+ path + "/";
 %>
 <head>
+</style>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
@@ -51,15 +52,13 @@
     </div>
      <table class="table table-hover">
 		<tr>
-		<th></th>
-		<th>id</th>
+		    <th></th>
+		    <th>id</th>
 			<th>name</th>
 			<th>updateTime</th>
 			<th>type</th>
 			<th>size</th>
 			<th>folderPath</th>
-			<th></th>
-			<th></th>
 			<th></th>
 		</tr>
 		<s:iterator value="#session.fileList" status="FileAndFolder">
@@ -75,21 +74,25 @@
 					<td onclick="return into(${id})">${size}</td>
 					<td onclick="return into(${id})">${folderPath}</td>
 					<td >
-			        <a href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
-					 onclick="return del();"
-					 >
-				    	<img src="jquery-easyui-1.3.6/themes/icons/no.png">
-					 </a>
+			        <div class="btn-group">
+	                 <a class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown">
+	                 <span class="glyphicon  glyphicon-pencil"></span>
+	                 edit <span class="caret"></span></a>
+	                  <ul class="dropdown-menu" role="menu"  style="min-width: 100%;">
+		                 <li>
+		                 <a href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
+					     onclick="return del();">
+					     <span class="glyphicon glyphicon-trash"></span>delete
+					     </a>
+		                 </li>
+		              </ul>
+                    </div>
 				    </td>
-				    <td>
-				    </td>
-				    <td><a href="#"> <img src="jquery-easyui-1.3.6/themes/icons/pencil.png"></a></td>
 				</tr>
 				</s:if>
 			 </s:iterator>
-				<%-- <s:else> --%>
 			<s:iterator value="#session.fileList" status="FileAndFolder">
-			<s:if test="type!='folder'">
+			   <s:if test="type!='folder'">
 				<tr>
 				    <td> <img class="icon tree-file"/></td>
 			        <td>${id}</td>
@@ -98,23 +101,39 @@
 					<td>${type}</td>
 					<td>${size}</td>
 					<td>${folderPath}</td>
-			        <td>
+			       <%--  <td>
 					<a href="delete.action?&id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}" 
 					onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;" >
-					    <img src="jquery-easyui-1.3.6/themes/icons/no.png">
+					    <img src="jquery-easyui-1.3.6/themesicons/no.png">
 					</a>
 				    </td>
 				    <td>
 	                <a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
                      <img src="jquery-easyui-1.3.6/themes/icons/download.png">
                     </a>
+			        </td> --%>
+			        <td>
+			        <div class="btn-group">
+	                 <a class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown">
+	                 <span class="glyphicon glyphicon-pencil"></span>
+	                 edit <span class="caret"></span></a>
+	                  <ul class="dropdown-menu" role="menu" style="min-width: 100%;" >
+		                 <li>
+		                    <a href="delete.action?&id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}" 
+					            onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;" >
+					        <span class="glyphicon glyphicon-trash"></span>delete
+					        </a>
+		                 </li>
+		                 <li><a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
+		                <span class="glyphicon  glyphicon-save"></span>download
+                             </a></li>
+		                 <li><a href="#" onclick="javascript:$('#win_move').window('open')"><span class="glyphicon glyphicon-move"></span>move</a></li>
+		              </ul>
+                    </div>
 			        </td>
-			        <td><a href="#"> <img src="jquery-easyui-1.3.6/themes/icons/pencil.png"></a></td>
 		    	</tr>	
-    	   <%-- </s:else> --%>
-    	   </s:if>	
+    	      </s:if>	
 			</s:iterator>	
-	
 	</table>
 	<!-- 文件列表结束 -->
    <!-- 分页效果开始 --> 
@@ -134,8 +153,25 @@
 		[total:${pagesource.totalRows}]
 	</div>
    <!-- 分页效果结束 -->
-	
- 
+   
+   
+   
+   
+   <!-- 弹出框开始 -->
+   
+   <div id="win_move"  class="easyui-window" title="move" 
+	     data-options="modal:true,closed:true,iconCls:'icon-add'"
+         style="width: 350px; height: 150px;" closable="true" closed="true">
+      <select>
+        <option value ="saab">Saab</option>
+        <option value="opel">Opel</option>
+         <option value="audi">Audi</option>
+      </select>
+   <br><br>
+        <a class="btn btn-info dropdown-toggle btn-xs" ><span class="glyphicon glyphicon-move"></span>move</a>
+        <a href="#" class="btn btn-info dropdown-toggle btn-xs"  onclick="javascript:$('#win_move').window('close')">
+	      <span class="glyphicon glyphicon-repeat"></span>cancel</a>
+   </div>
  
 	<!-- 下载文件夹失败 -->
 	<div id="win_downFolder" class="easyui-window" title="TIP" 
@@ -197,6 +233,6 @@
 	</s:form>
    </div>
    <!-- 创建文件夹窗口结束 -->
- 
+	
 </body>
 </html>

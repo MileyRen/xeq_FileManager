@@ -1,5 +1,6 @@
 package com.xeq.file.service.impl;
 
+import java.io.File;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,7 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 	}
 
 	@Override
-	public void update(Object obj) {
+	public void update(FileAndFolder obj) {
 		folderDao.update(obj);
 	}
 
