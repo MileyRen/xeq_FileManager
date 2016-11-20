@@ -2,6 +2,17 @@
  * 
  */
 
+function prom(value) {
+	document.getElementById("fromId").value = value;
+}
+function open() {
+	$('#win_move').window('open');
+}
+
+function getValue(value) {
+	document.getElementById("toPathId").value = value;
+}
+
 $(document).ready(function() {
 
 	/* 弹出创建文件夹窗口 */

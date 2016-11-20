@@ -24,6 +24,20 @@ public class TestCase extends BaseDao {
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
 
 	@Test
+	public void testTree(){
+		folderService = (FolderService) context.getBean("FolderService");
+		
+		FileAndFolder folder = folderService.getById(2);
+		String s = folder.getFolderPath();
+		System.out.println(s);
+		String ss[]=s.split("\\\\");
+		for (String string : ss) {
+			System.out.println(string);
+		}
+	}
+	
+	
+	@Test
 	public void testmove() {
 		File fold = new File("e://java//java");// 某路径下的文件
 		String strNewPath = "e://java//new file1//";// 新路径

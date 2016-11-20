@@ -59,18 +59,6 @@ public class FileAndFolder implements java.io.Serializable {
 	@Cascade(value = { CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.ALL ,CascadeType.SAVE_UPDATE})
 	private Set<FileAndFolder> deleteFlagSets = new HashSet<FileAndFolder>();
 
-	/*
-	 * // 级联删除标识
-	 * 
-	 * @ManyToOne(cascade = CascadeType.ALL, optional = true)
-	 * 
-	 * @JoinColumn(name = "deleteFlag", referencedColumnName =
-	 * "id",nullable=true) private FileAndFolder deleteFlag;
-	 * 
-	 * @OneToMany(mappedBy = "id", cascade = CascadeType.ALL) private
-	 * Set<FileAndFolder> deleteFlagSets = new HashSet<FileAndFolder>();
-	 */
-
 	// 映射的真实路径
 	@Column(name = "mappingPath", nullable = true, length = 225)
 	private String mappingPath;

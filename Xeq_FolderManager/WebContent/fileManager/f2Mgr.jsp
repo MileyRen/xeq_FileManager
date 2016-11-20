@@ -34,7 +34,7 @@
 	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="jsFileManager/folder.js"></script>
 </head>
-<body>
+
 	<s:actionerror/>
 	<!-- 初始化页面列表结束 -->
 	<div class="easyui-panel" style="padding: 10px;">
@@ -113,6 +113,7 @@
                     </a>
 			        </td> --%>
 			        <td>
+			        <!-- 按钮组开始 -->
 			        <div class="btn-group">
 	                 <a class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown">
 	                 <span class="glyphicon glyphicon-pencil"></span>
@@ -127,10 +128,12 @@
 		                 <li><a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
 		                <span class="glyphicon  glyphicon-save"></span>download
                              </a></li>
-		                 <li><a href="#" onclick="javascript:$('#win_move').window('open')"><span class="glyphicon glyphicon-move"></span>move</a></li>
-		              </ul>
+		                 <li><a href="#" 
+		                        onclick="prom(${id}),$('#win_move').window('open')"><span class="glyphicon glyphicon-move"></span>move</a></li>
+		              </ul>                                                                                                                                                                                                                                 
                     </div>
-			        </td>
+                    <!-- 按钮组结束 -->
+			       </td>
 		    	</tr>	
     	      </s:if>	
 			</s:iterator>	
@@ -143,9 +146,7 @@
 	   onclick="javascript:window.location.href='pageList.action?&parentFolderId=${parentFolderId}&pagesource.currentPage=1'"></a>
 	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-prev'" 
 	   onclick="javascript:window.location.href='pageList.action?&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage-1 }'"></a>
-	
- [ ${pagesource.currentPage} of ${pagesource.totalPages }] 
-	
+       [ ${pagesource.currentPage} of ${pagesource.totalPages }] 
 	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-next'" 
 	   onclick="javascript:window.location.href='pageList.action?&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage+1 }'"></a>
 	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'pagination-last'" 
@@ -154,25 +155,33 @@
 	</div>
    <!-- 分页效果结束 -->
    
-   
-   
-   
    <!-- 弹出框开始 -->
-   
-   <div id="win_move"  class="easyui-window" title="move" 
+   <!-- 移动文件开始 -->
+   <div id="win_move"  class="easyui-window" title="move a file" 
 	     data-options="modal:true,closed:true,iconCls:'icon-add'"
-         style="width: 350px; height: 150px;" closable="true" closed="true">
-      <select>
-        <option value ="saab">Saab</option>
-        <option value="opel">Opel</option>
-         <option value="audi">Audi</option>
-      </select>
-   <br><br>
-        <a class="btn btn-info dropdown-toggle btn-xs" ><span class="glyphicon glyphicon-move"></span>move</a>
-        <a href="#" class="btn btn-info dropdown-toggle btn-xs"  onclick="javascript:$('#win_move').window('close')">
-	      <span class="glyphicon glyphicon-repeat"></span>cancel</a>
+         style="width: 450px; height: 350px;" closable="true" closed="true">
+      <div style="padding:10px 20px 10px 50px; height:90%">
+     
+      <s:form action="moveAction" id="movef"  method="post">
+            <input type="hidden" name="fromId" id="fromId" value=""/>
+            <input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}"/>
+            <input type="hidden" name="parentFolderId" value="${session.parentId }"/>
+       <select name="toId" id="toPathId" onChange="getValue(this.value)">
+          <option value="" selected>------------select a path------------</option>
+          <s:iterator value="#session.folderlist" status="FileAndFolder">
+          <option value ="${id}">${folderPath}</option>
+          </s:iterator>
+        </select>
+      </s:form>  
+      </div>
+      <div style="height:10%;">
+        <a class="btn btn-info  btn-xs" onclick="javascript:$('form#movef').submit()">
+           <span class="glyphicon glyphicon-move"></span>move</a> 
+        <a href="#" class="btn btn-info  btn-xs"  onclick="javascript:$('#win_move').window('close')">
+	       <span class="glyphicon glyphicon-repeat"></span>cancel</a>
+	  </div>
    </div>
- 
+    <!-- 移动文件结束 -->
 	<!-- 下载文件夹失败 -->
 	<div id="win_downFolder" class="easyui-window" title="TIP" 
 	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
@@ -233,6 +242,5 @@
 	</s:form>
    </div>
    <!-- 创建文件夹窗口结束 -->
-	
 </body>
 </html>

@@ -1,5 +1,6 @@
 package com.xeq.file.action;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 import com.opensymphony.xwork2.Preparable;
+import com.xeq.file.dao.FolderOperate;
 import com.xeq.file.dao.impl.BaseDao;
 import com.xeq.file.domain.FileAndFolder;
 import com.xeq.file.domain.PageSource;
@@ -31,6 +33,9 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private FolderService folderService;
 	@Autowired
 	private PageSource pagesource;
+	@Autowired
+	private FolderOperate folderOperate;
+
 	/** 栈，用于存放访问次序，若一个文件夹被删除，则应删除栈中所有该文件夹及子文件夹 */
 	private static final Stack<Integer> preAndnext = new Stack<Integer>();
 	private static final long serialVersionUID = 2755957955541896021L;
@@ -42,18 +47,51 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private String folderPath;// 父文件夹路径，用于新建文件夹时
 	private String name;
 	private String type;
-	
+
 	// 分页
 	private String pageTag;
-	
-	public String moveFile(){
+	// 移动文件
+	private Integer fromId;
+	private String fromPath;
+	private Integer toId;
+
+	@Action(value = "moveAction", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp"),
+			@Result(name = "error", location = "/fileManager/f2Mgr.jsp"),
+			@Result(name = "input", location = "/fileManager/f2Mgr.jsp") })
+	public String moveFile() throws Exception {
 		logger.info("----------移动文件-----------");
 		int userId = (int) session.get("userId");
-		
-		return "success";
+		if (toId == null) {
+			toId = fromId;
+		}
+		if (toId == fromId) {
+			return getPage();
+		}
+		FileAndFolder frompojo = folderService.getById(fromId);// 移动文件夹
+		FileAndFolder topojo = folderService.getById(toId);// 目标文件夹
+		String from_path = frompojo.getFolderPath() + frompojo.getName() + frompojo.getType();
+		logger.info("from——path是===========" + from_path);
+
+		String new_path = topojo.getFolderPath();
+		String new_mappingPath = topojo.getMappingPath();
+		Integer new_parentFolderId = topojo.getId();
+		FileAndFolder new_delFlag = topojo.getDeleteFlag();
+
+		boolean moveFlag = folderOperate.removeFileOrFolder(from_path, new_path);
+		if (moveFlag == true) {
+			frompojo.setFolderPath(new_path);
+			frompojo.setMappingPath(new_mappingPath);
+			frompojo.setDeleteFlag(new_delFlag);
+			frompojo.setParentFolderId(new_parentFolderId);
+			folderService.update(frompojo);
+
+			return getPage();
+		} else {
+			return "error";
+		}
+
 	}
-	
-	
+
 	@Action(value = "pageList", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
 	public String getPage() throws Exception {
 		logger.debug("------查询结果-----------");
@@ -77,10 +115,24 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		String hql = "From FileAndFolder where userId=" + userId + " and parentFolderId=" + parentFolderId;
 		List<FileAndFolder> all_list = folderService.getAll(hql);
 
+		String hqlFolder = "From FileAndFolder where userId=" + userId + " and type='folder'";
+		// 所有文件夹
+		List<FileAndFolder> all_folder = folderService.getAll(hqlFolder);
+
+		for (FileAndFolder fr : all_folder) {
+			String f = fr.getFolderPath();
+			String fl[] = f.split("\\\\");
+			StringBuilder ph =new StringBuilder();
+			for (int i = 2; i < fl.length; i++) {
+				ph.append("\\"+fl[i]);
+			}
+			fr.setFolderPath(ph.toString());
+		}
+
 		pagesource.setTotalRows(all_list.size());// 获取总行数
 
-		if (pageTag!=null) {
-			//说明是首次加载
+		if (pageTag != null) {
+			// 说明是首次加载
 			pagesource.init(all_list.size(), (new BaseDao()).pageSize());// 初始化，用以获取总页数
 			pagesource.setCurrentPage(1);
 			pagesource.setPageSize((new BaseDao()).pageSize());
@@ -113,16 +165,17 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		} else {
 			preAndnext.add(parentFolderId);
 		}
-		
+
+		session.put("folderlist", all_folder);
 		session.put("fileList", list);
 		session.put("pagesource", pagesource);
 		session.put("parentPath", folderPath);
 		session.put("parentId", parentFolderId);
-		
+
 		return "pagerlist";
 	}
-	
-	@Action(value = "backStack", results = {@Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
+
+	@Action(value = "backStack", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
 	public String getBack() throws Exception {
 		Integer userId = (Integer) session.get("userId");
 		// 初始化pid
@@ -135,18 +188,18 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			pid = parentId;
 		}
 		folderPath = folderService.parentPath(pid);
-		
-		//List<FileAndFolder> faflists = folderService.getByFolderOrFiles(userId, pid);
+
+		// List<FileAndFolder> faflists =
+		// folderService.getByFolderOrFiles(userId, pid);
 		session.put("parentPath", folderPath);
 		session.put("parentId", pid);
 		setParentFolderId(pid);
-		
-		logger.info("上一页的parentFolderId="+pid);
-		//调用getPage
+
+		logger.info("上一页的parentFolderId=" + pid);
+		// 调用getPage
 		return getPage();
 	}
-	
-	
+
 	public String getPageTag() {
 		return pageTag;
 	}
@@ -203,6 +256,46 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		this.folderService = folderService;
 	}
 
+	public PageSource getPagesource() {
+		return pagesource;
+	}
+
+	public void setPagesource(PageSource pagesource) {
+		this.pagesource = pagesource;
+	}
+
+	public Integer getFromId() {
+		return fromId;
+	}
+
+	public void setFromId(Integer fromId) {
+		this.fromId = fromId;
+	}
+
+	public String getFromPath() {
+		return fromPath;
+	}
+
+	public void setFromPath(String fromPath) {
+		this.fromPath = fromPath;
+	}
+
+	public Integer getToId() {
+		return toId;
+	}
+
+	public void setToId(Integer toId) {
+		this.toId = toId;
+	}
+
+	public FolderOperate getFolderOperate() {
+		return folderOperate;
+	}
+
+	public void setFolderOperate(FolderOperate folderOperate) {
+		this.folderOperate = folderOperate;
+	}
+
 	public void setModel(FileAndFolder model) {
 		this.model = model;
 	}
@@ -222,14 +315,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	@Override
 	public void setSession(Map<String, Object> session) {
 		this.session = session;
-	}
-
-	public PageSource getPagesource() {
-		return pagesource;
-	}
-
-	public void setPagesource(PageSource pagesource) {
-		this.pagesource = pagesource;
 	}
 
 }
