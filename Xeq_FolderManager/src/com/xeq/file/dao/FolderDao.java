@@ -1,6 +1,7 @@
 package com.xeq.file.dao;
 
 import java.util.List;
+import java.util.Stack;
 
 import com.xeq.file.domain.FileAndFolder;
 import com.xeq.file.domain.PageSource;
@@ -11,7 +12,7 @@ public interface FolderDao {
 	void update(FileAndFolder obj);
 
 	/**
-	 * 查找当前级别所有文件及文件夹
+	 * 查找文件及文件夹
 	 * 
 	 */
 	List<FileAndFolder> getAll(String hql);
@@ -26,14 +27,9 @@ public interface FolderDao {
 	List<FileAndFolder> pageReviwe(PageSource page, String hql);
 
 	/**
-	 * 在parentFolderId下创建文件夹，同级文件夹不能重名
-	 * 
-	 * @param：userId:用户id
-	 * @param:parentForderId:父文件夹
-	 * @return 创建后的文件夹Id
+	 * 在parentFolderId下创建文件夹，同级文件夹不能重名,传入一个对象
 	 */
-	int createFolder(Integer userId, String name, Integer parentFolderId, String folderPath,
-			FileAndFolder parentObject);
+	int createFolder(FileAndFolder fgr);
 
 	/** 保存新的对象到数据库中 */
 	int saveFileAndFolder(FileAndFolder fileAndFolder);
@@ -59,19 +55,11 @@ public interface FolderDao {
 	FileAndFolder getById(Integer Id);
 
 	/** 删除单个文件 */
-	int delete(Integer id, String path);
+	int delete(Integer id);
 
-	/**
-	 * 将上传文件信息传入数据库 *
-	 * 
-	 * @parentFolder 父文件夹
-	 * @filename 文件名
-	 */
-	int uploadFile(Integer parentFolderId, String filename, String size, String type, String folderPath, Integer userId,
-			String mappingPath, FileAndFolder fileObject);
 
 	/** 查找父文件夹 */
-	String parentPath(Integer parentFolderId);
+	String parentPath(Integer parentFolderId,Stack<FileAndFolder> folderStack,String rootpath);
 
 	/** 级联删除，文件夹删除 */
 	void deleteFolder(FileAndFolder folder);

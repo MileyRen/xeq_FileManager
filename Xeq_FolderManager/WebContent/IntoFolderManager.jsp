@@ -1,3 +1,4 @@
+<%@page import="com.gene.utils.User"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="/struts-tags" prefix="s"%>
@@ -13,6 +14,11 @@
 
 
 	<%
+		User user = new User();
+		user.setId(1);
+		user.setUserName("user_1");
+		user.setFolder("F:\\xeqFileTest\\user_1\\");
+		session.setAttribute("user", user);
 		session.setAttribute("userId", 1);
 	%>
 	<a href="folderlist.action">点击进入文件管理</a>

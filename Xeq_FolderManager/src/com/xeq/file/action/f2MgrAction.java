@@ -8,8 +8,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -26,9 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import com.gene.utils.User;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 import com.opensymphony.xwork2.Preparable;
+import com.xeq.file.dao.FolderOperate;
 import com.xeq.file.domain.FileAndFolder;
 import com.xeq.file.domain.PageSource;
 import com.xeq.file.service.FolderService;
@@ -43,6 +47,8 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 
 	@Autowired
 	private FolderService folderService;
+	@Autowired
+	private FolderOperate folderOperate;
 	@Autowired
 	private PageSource pagesource;
 	private Integer id;
@@ -60,7 +66,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	private List<String> fileSize;
 	private String targetFileDir;
 	private int filesCount;
-	
+
 	// 下载
 	private String downfileName;
 	// 分页
@@ -68,13 +74,16 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 
 	@Action(value = "delete", results = {
 			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
-					"%{parentFolderId}","pagesource.currentPage","%{pagesource.currentPage}"}) })
+					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }) })
 	public String deleteFile() {
 		logger.debug("------删除单个文件-----------\n");
-		int userId = (int) session.get("userId");
-		int flag = folderService.delete(id, folderPath + name + type);
-		logger.info("删除：" + flag + ";删除文件：" + folderPath + name + type);
+		// Integer userId = (Integer) session.get("userId");
+		User user = (User) session.get("user");
+		Integer userId = user.getId();
 
+		int flag = folderService.delete(id);
+		logger.info("删除：" + flag + ";删除文件：" + folderPath + name + type);
+		boolean ret = folderOperate.delete(folderPath + name + type);
 		return "success";
 	}
 
@@ -83,12 +92,15 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 					"%{parentFolderId}" }) })
 	public String deleteFolder() {
 		logger.debug("------删除文件夹-----------\n");
-		int userId = (int) session.get("userId");
+		User user = (User) session.get("user");
+		Integer userId = user.getId();
 		FileAndFolder folder = folderService.getById(id);
-		logger.info("删除的文件夹ID="+getId());
+		logger.info("删除的文件夹ID=" + getId());
 		folderService.deleteFolder(folder);
 
-		logger.info("删除文件夹：" + folderPath);
+		session.get("");
+		logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
+		boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
 
 		return "success";
 	}
@@ -96,18 +108,20 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	/***/
 	// 直接在类名称的上端写入即可，value中指定要引入的拦截器的名称即可
 	@Action(value = "addFolder", results = {
-			@Result(name = "createFolder", type = "redirect", location = "pageList.action", params = {
-					"parentFolderId", "%{parentFolderId}" }),
+			@Result(name = "createFolder", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}" }),
 			@Result(name = "error", type = "redirect", location = "pageList.action", params = { "parentFolderId",
-					"%{parentFolderId}" }) },
-			interceptorRefs = { @InterceptorRef(value = "defaultStack"),
+					"%{parentFolderId}" }) }, interceptorRefs = { @InterceptorRef(value = "defaultStack"),
 							@InterceptorRef(value = "token"), })
 	public String createFolder() {
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
 		logger.debug("--------创建文件夹------------");
+		// int userId = (int) session.get("userId");
+		User user = (User) session.get("user");
+		if (user == null)
+			return "error";
 
-		int userId = (int) session.get("userId");
-
+		int userId = user.getId();
 		if (name == null || name.equals("")) {
 			addFieldError("name", "The name " + name + " is not null.");
 			System.out.println("name is not null");
@@ -128,9 +142,22 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 				return "error";
 			}
 		}
-
 		FileAndFolder parentObject = folderService.getById(parentFolderId);
-		int id = folderService.create(userId, name, parentFolderId, folderPath, parentObject);
+		FileAndFolder fgr = new FileAndFolder();
+		fgr.setName(name);
+		fgr.setParentFolderId(parentFolderId);
+		fgr.setSize("");
+		fgr.setTime(new Date());
+		fgr.setType("folder");
+		fgr.setUserId(userId);
+		fgr.setMappingPath(null);
+		fgr.setDeleteFlag(parentObject);
+		int id = folderService.createFolder(fgr);
+
+		// 创建文件夹
+		boolean flag = folderOperate.createRealFolder(name, folderPath);
+		logger.info("parentFolder==" + parentFolderId);
+
 		if (id > 0) {
 			return "createFolder";
 		} else {
@@ -151,23 +178,19 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 
 	// **上传文件,多文件上传*//*
 	@Action(value = "fileUpload", results = {
-			@Result(name = "success", type = "redirect", 
-					location = "pageList.action", 
-					params = { 
-							"parentFolderId","%{parentFolderId}" 
-							,"pagesource.currentPage","%{pagesource.currentPage}"
-							}
-			),
+			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }),
 			@Result(name = "error", type = "redirect", location = "pageList.action", params = { "parentFolderId",
-					"%{parentFolderId}" ,"pagesource.currentPage","%{pagesource.currentPage}"}) },
-			interceptorRefs = { 
-					@InterceptorRef(value = "defaultStack",params={
-							"maxinumSize","2048"
-					})
-				})
+					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }) }, interceptorRefs = {
+							@InterceptorRef(value = "defaultStack", params = { "maxinumSize", "2048" }) })
 	public String uploadFiles() {
 		String retu = "success";
-		int userId = (int) session.get("userId");
+		// int userId = (int) session.get("userId");
+		User user = (User) session.get("user");
+		if (user == null)
+			return "error";
+		int userId = user.getId();
+
 		try {
 			// 文件上传到真正的路径，然后在数据库进行映射
 			if (uploadFiles != null) {
@@ -210,8 +233,22 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 					// 传入数据库
 
 					FileAndFolder fileObject = folderService.getById(parentFolderId);
-					int ret = folderService.uploadFile(parentFolderId, fileN.substring(0, fileN.lastIndexOf(".")),
-							fileSize.get(i), uploadFilesContentType.get(i), folderPath, userId, folderPath, fileObject);
+					FileAndFolder fgr = new FileAndFolder();
+					fgr.setName(fileN.substring(0, fileN.lastIndexOf(".")));
+					fgr.setParentFolderId(parentFolderId);
+					fgr.setSize(fileSize.get(i));
+					fgr.setTime(new Date());
+					fgr.setType(uploadFilesContentType.get(i));
+					fgr.setUserId(userId);
+					fgr.setMappingPath("");
+					fgr.setDeleteFlag(fileObject);
+
+					folderService.saveFileAndFolder(fgr);
+
+					// int ret = folderService.uploadFile(parentFolderId,
+					// fileN.substring(0, fileN.lastIndexOf(".")),
+					// fileSize.get(i), uploadFilesContentType.get(i),
+					// folderPath, userId, folderPath, fileObject);
 				}
 
 				addActionMessage("Upload success!");
@@ -242,15 +279,9 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	}
 
 	// 下载
-	@Action(value = "download",
-			results = { 
-			@Result(name = "success", type = "stream",
-					params = {  
-					   "contentType","application/octet-stream,charset=utf-8",
-					   "contentDisposition","attachment;filename=\"${downfileName}\"", 
-					   "inputName", "inputStream", 
-					   "bufferSize", "4096" }
-			)})
+	@Action(value = "download", results = { @Result(name = "success", type = "stream", params = { "contentType",
+			"application/octet-stream,charset=utf-8", "contentDisposition", "attachment;filename=\"${downfileName}\"",
+			"inputName", "inputStream", "bufferSize", "4096" }) })
 	public String downloadFile() throws Exception {
 		return "success";
 	}
@@ -320,6 +351,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	public FileAndFolder getModel() {
 		return model;
 	}
+
 	public String getName() {
 		return name;
 	}

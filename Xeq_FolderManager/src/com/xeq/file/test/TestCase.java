@@ -2,6 +2,7 @@ package com.xeq.file.test;
 
 import java.io.File;
 import java.util.List;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -28,14 +29,25 @@ public class TestCase extends BaseDao {
 		folderService = (FolderService) context.getBean("FolderService");
 		
 		FileAndFolder folder = folderService.getById(2);
-		String s = folder.getFolderPath();
-		System.out.println(s);
-		String ss[]=s.split("\\\\");
-		for (String string : ss) {
+	//	String s = folder.getFolderPath();
+	//	System.out.println(s);
+		//String ss[]=s.split("\\\\");
+	/*	for (String string : ss) {
 			System.out.println(string);
-		}
+		}*/
 	}
 	
+	@Test
+	public void tess(){
+		Stack<Integer> stack = new Stack<Integer>();
+		stack.push(1);
+		stack.push(2);
+		stack.push(3);
+		System.out.println(stack.peek());
+		System.out.println(stack.pop());
+		System.out.println(stack.peek());
+		System.out.println(stack.get(stack.size()-1));
+	}
 	
 	@Test
 	public void testmove() {
@@ -81,10 +93,6 @@ public class TestCase extends BaseDao {
 		System.out.println(StringFilter(str));
 	}
 
-	@Test
-	public void te() {
-		System.out.println(rootPath());
-	}
 
 	@Test
 	public void createFolder() {
@@ -95,7 +103,7 @@ public class TestCase extends BaseDao {
 	@Test
 	public void create() {
 		folderService = (FolderService) context.getBean("FolderService");
-		System.out.println(folderService.create(2, "user_1", -1, "I:\\xeqFileTest\\", null) + "创建成功");
+		//System.out.println(folderService.create(2, "user_1", -1, "I:\\xeqFileTest\\", null) + "创建成功");
 	}
 
 	@Test

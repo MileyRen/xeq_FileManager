@@ -1,6 +1,6 @@
 package com.xeq.file.action;
 
-import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import com.gene.utils.User;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 import com.opensymphony.xwork2.Preparable;
@@ -37,7 +38,7 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private FolderOperate folderOperate;
 
 	/** 栈，用于存放访问次序，若一个文件夹被删除，则应删除栈中所有该文件夹及子文件夹 */
-	private static final Stack<Integer> preAndnext = new Stack<Integer>();
+	private static final Stack<FileAndFolder> folderStack = new Stack<FileAndFolder>();
 	private static final long serialVersionUID = 2755957955541896021L;
 	private static Logger logger = Logger.getLogger(FileMgrAction.class);
 	private Map<String, Object> session;
@@ -60,7 +61,11 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			@Result(name = "input", location = "/fileManager/f2Mgr.jsp") })
 	public String moveFile() throws Exception {
 		logger.info("----------移动文件-----------");
-		int userId = (int) session.get("userId");
+
+		User user = (User) session.get("user");
+		if (user == null) {
+			return "error";
+		}
 		if (toId == null) {
 			toId = fromId;
 		}
@@ -69,17 +74,18 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		}
 		FileAndFolder frompojo = folderService.getById(fromId);// 移动文件夹
 		FileAndFolder topojo = folderService.getById(toId);// 目标文件夹
-		String from_path = frompojo.getFolderPath() + frompojo.getName() + frompojo.getType();
+		//String from_path = frompojo.getFolderPath() + frompojo.getName() + frompojo.getType();
+		String from_path = folderPath + frompojo.getName() + frompojo.getType();
 		logger.info("from——path是===========" + from_path);
 
-		String new_path = topojo.getFolderPath();
+		String new_path = folderPath;//topojo.getFolderPath();
 		String new_mappingPath = topojo.getMappingPath();
 		Integer new_parentFolderId = topojo.getId();
 		FileAndFolder new_delFlag = topojo.getDeleteFlag();
 
 		boolean moveFlag = folderOperate.removeFileOrFolder(from_path, new_path);
 		if (moveFlag == true) {
-			frompojo.setFolderPath(new_path);
+			//frompojo.setFolderPath(new_path);
 			frompojo.setMappingPath(new_mappingPath);
 			frompojo.setDeleteFlag(new_delFlag);
 			frompojo.setParentFolderId(new_parentFolderId);
@@ -92,25 +98,43 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 
 	}
 
-	@Action(value = "pageList", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
+	@Action(value = "pageList", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp"),
+			@Result(name = "error", location = "/fileManager/f2Mgr.jsp") })
 	public String getPage() throws Exception {
 		logger.debug("------查询结果-----------");
-		int userId = (int) session.get("userId");
+		User user = (User) session.get("user");
+		if (user == null)
+			return "error";
 
+		int userId = user.getId();
+		String rootPath = user.getFolder();
 		List<FileAndFolder> list = null;
 
-		// 查找当前用户是否有文件夹
-		List<FileAndFolder> exist = folderService
-				.getAll("From FileAndFolder where userId=" + userId + " and parentFolderId=-1");
-		if (exist.size() == 0) {
-			// 若当前用户没有文件夹，则进行创建，并将其Id作为parentId
-			parentFolderId = folderService.create(userId, "user_" + userId, -1, (new BaseDao()).rootPath(), null);
+		// 若当前没有parentFolderId值，则表示第一次进入页面
+		if (parentFolderId == null) {
+			parentFolderId = -1;
 		}
 
-		else if (parentFolderId == null) {
-			// 若当前没有parentFolderId值，则表示第一次进入页面，则获取第一级目录的parentFolderId值
-			parentFolderId = folderService.getByFolderOrFiles(userId, -1).get(0).getId();
+		logger.info("当前父Id=" + parentFolderId);
+		FileAndFolder fgr = folderService.getById(parentFolderId);
+		if (fgr != null) {
+			try {
+				FileAndFolder peek = folderStack.peek();
+				if (peek.getParentFolderId() != fgr.getParentFolderId()) {
+					folderStack.push(fgr);
+				}
+			} catch (EmptyStackException e) {
+				folderStack.push(fgr);
+			}
+
 		}
+		System.out.println("------------------------------输出Stack----------------------------------------");
+		for (FileAndFolder fileAndFolder : folderStack) {
+			System.out.println(fileAndFolder.toString());
+		}
+		System.out.println("------------------------------输出Stack----------------------------------------");
+		folderPath = folderService.parentPath(parentFolderId, folderStack, rootPath);
+		logger.info("当前路径==" + folderPath);
 
 		String hql = "From FileAndFolder where userId=" + userId + " and parentFolderId=" + parentFolderId;
 		List<FileAndFolder> all_list = folderService.getAll(hql);
@@ -118,16 +142,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		String hqlFolder = "From FileAndFolder where userId=" + userId + " and type='folder'";
 		// 所有文件夹
 		List<FileAndFolder> all_folder = folderService.getAll(hqlFolder);
-
-		for (FileAndFolder fr : all_folder) {
-			String f = fr.getFolderPath();
-			String fl[] = f.split("\\\\");
-			StringBuilder ph =new StringBuilder();
-			for (int i = 2; i < fl.length; i++) {
-				ph.append("\\"+fl[i]);
-			}
-			fr.setFolderPath(ph.toString());
-		}
 
 		pagesource.setTotalRows(all_list.size());// 获取总行数
 
@@ -156,43 +170,48 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			logger.info(pagesource.toString());
 			list = folderService.pageReviwe(pagesource, hql);
 		}
-		folderPath = folderService.parentPath(parentFolderId);
-		if (preAndnext.size() > 0) {
-			Integer temp = preAndnext.get(preAndnext.size() - 1);
-			if (temp != parentFolderId) {
-				preAndnext.add(parentFolderId);// 如果该parentId与上一级不同将此时的父文件夹id入栈
-			}
-		} else {
-			preAndnext.add(parentFolderId);
-		}
 
 		session.put("folderlist", all_folder);
 		session.put("fileList", list);
 		session.put("pagesource", pagesource);
 		session.put("parentPath", folderPath);
 		session.put("parentId", parentFolderId);
+		session.put("folderStack", folderStack);
 
 		return "pagerlist";
 	}
 
 	@Action(value = "backStack", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp") })
 	public String getBack() throws Exception {
-		Integer userId = (Integer) session.get("userId");
-		// 初始化pid
-		Integer parentId = folderService.getByFolderOrFiles(userId, -1).get(0).getId();
-		Integer pid = parentId;// 初始化为第一页
-		try {
-			preAndnext.pop();// 当前父文件夹出栈
-			pid = preAndnext.get(preAndnext.size() - 1);// 获得上一级文件夹
-		} catch (Exception e) {// 若数组越界，则返回初始化值
-			pid = parentId;
-		}
-		folderPath = folderService.parentPath(pid);
+		User user = (User) session.get("user");
+		Integer userId = user.getId();
+		String rootPath = user.getFolder();
 
-		// List<FileAndFolder> faflists =
-		// folderService.getByFolderOrFiles(userId, pid);
+		// 初始化pid
+		//Integer parentId = -1; // folderService.getByFolderOrFiles(userId,
+								// -1).get(0).getId();
+		Integer pid = -1;// 初始化为第一页
+		
+		try {
+			pid = folderStack.peek().getParentFolderId();// 获得上一级文件夹
+			folderStack.pop();// 当前父文件夹出栈
+		} catch (Exception e) {// 若数组越界，则返回初始化值
+			pid = -1;
+		}
+		
+		System.out.println("------------------------------输出Back Stack----------------------------------------");
+		for (FileAndFolder fileAndFolder : folderStack) {
+			System.out.println(fileAndFolder.toString());
+		}
+		System.out.println("------------------------------输出Back Stack----------------------------------------");
+		
+		folderPath = folderService.parentPath(pid, folderStack, rootPath);
+		logger.info("backfolderPath========" + folderPath);
+
 		session.put("parentPath", folderPath);
 		session.put("parentId", pid);
+		session.put("folderStack", folderStack);
+
 		setParentFolderId(pid);
 
 		logger.info("上一页的parentFolderId=" + pid);

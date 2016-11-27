@@ -7,7 +7,6 @@
     <!--配置hibernate的基本属性 -->
 		<!-- 方言 -->
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
-
 		<!-- 是否显示及格式化 SQL -->
 		<property name="hibernate.show_sql">true</property>
 		<property name="hibernate.format_sql">true</property>
@@ -22,5 +21,6 @@
 		<!-- 二级缓存相关 -->
 		<!-- 基于annotation的配置 -->
 		<mapping class="com.xeq.file.domain.FileAndFolder" />
+		<mapping resource="com/gene/utils/User.hbm.xml"/>
 	</session-factory>
 </hibernate-configuration>

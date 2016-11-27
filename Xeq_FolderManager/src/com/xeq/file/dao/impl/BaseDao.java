@@ -25,17 +25,6 @@ public class BaseDao {
 		return this.sessionFactory.getCurrentSession();
 	}
 
-	public String rootPath() {
-		String path = "";
-		try {
-			properties.load(inputStream);
-			path = properties.getProperty("file.root.parent");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return path;
-	}
-
 	public Integer pageSize() {
 		try {
 			properties.load(inputStream);

@@ -2,6 +2,7 @@ package com.xeq.file.service.impl;
 
 import java.io.File;
 import java.util.List;
+import java.util.Stack;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,6 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 	}
 
 	@Override
-	public int create(Integer userId, String name, Integer parentFolderId, String folderPath,
-			FileAndFolder parentObject) {
-		return folderDao.createFolder(userId, name, parentFolderId, folderPath, parentObject);
-	}
-
-	@Override
 	public List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId) {
 		return folderDao.getByFolderOrFiles(userId, parentFolderId);
 	}
@@ -39,19 +34,13 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 	}
 
 	@Override
-	public int uploadFile(Integer parentFolderId, String filename, String size, String type, String folderPath,
-			Integer userId, String mappingPath, FileAndFolder fileObject) {
-		return folderDao.uploadFile(parentFolderId, filename, size, type, folderPath, userId, mappingPath, fileObject);
+	public String parentPath(Integer parentFolderId,Stack<FileAndFolder> folderStack,String rootPath) {
+		return folderDao.parentPath(parentFolderId,folderStack,rootPath);
 	}
 
 	@Override
-	public String parentPath(Integer parentFolderId) {
-		return folderDao.parentPath(parentFolderId);
-	}
-
-	@Override
-	public int delete(Integer id, String path) {
-		return folderDao.delete(id, path);
+	public int delete(Integer id) {
+		return folderDao.delete(id);
 	}
 
 	@Override
@@ -78,5 +67,11 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 	public void update(FileAndFolder obj) {
 		folderDao.update(obj);
 	}
+
+	@Override
+	public int createFolder(FileAndFolder fgr) {
+		return folderDao.createFolder(fgr);
+	}
+	
 
 }

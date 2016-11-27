@@ -1,0 +1,16 @@
+@CHARSET "UTF-8";
+.icon-folder {
+	background: url('bootstrap/images/tree_icons.png') no-repeat -208px 0;
+}
+
+.icon-file {
+	background: url('bootstrap/images/tree_icons.png') no-repeat -240px 0;
+}
+
+.icon-upload {
+	background: url('icons/upload.png') no-repeat center center;
+}
+
+.icon-download {
+	background: url('icons/download.png') no-repeat center center;
+}

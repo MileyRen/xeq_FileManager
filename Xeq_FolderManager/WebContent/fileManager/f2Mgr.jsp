@@ -28,6 +28,7 @@
 
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/default/easyui.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/fgr.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/bootstrap/pagination.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/demo/demo.css">
  	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.min.js"></script>
@@ -65,7 +66,7 @@
 			<s:if test="type=='folder'">
 			      <tr>
 					<td onclick="return into(${id})">
-					 <img class="icon tree-folder"/>
+					 <span class="icon tree-folder"></span>
 					</td> 
 					<td onclick="return into(${id})">${id}</td>
 					<td onclick="return into(${id})">${name}</td>
@@ -94,30 +95,19 @@
 			<s:iterator value="#session.fileList" status="FileAndFolder">
 			   <s:if test="type!='folder'">
 				<tr>
-				    <td> <img class="icon tree-file"/></td>
+				    <td> <span class="icon tree-file"></span></td>
 			        <td>${id}</td>
 					<td>${name}</td>
 					<td><s:date name="time" format="yyyy-MM-dd" /></td>
 					<td>${type}</td>
 					<td>${size}</td>
 					<td>${folderPath}</td>
-			       <%--  <td>
-					<a href="delete.action?&id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}" 
-					onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;" >
-					    <img src="jquery-easyui-1.3.6/themesicons/no.png">
-					</a>
-				    </td>
-				    <td>
-	                <a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
-                     <img src="jquery-easyui-1.3.6/themes/icons/download.png">
-                    </a>
-			        </td> --%>
 			        <td>
 			        <!-- 按钮组开始 -->
 			        <div class="btn-group">
 	                 <a class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown">
-	                 <span class="glyphicon glyphicon-pencil"></span>
-	                 edit <span class="caret"></span></a>
+	                    <span class="glyphicon glyphicon-pencil"></span>
+	                    edit <span class="caret"></span></a>
 	                  <ul class="dropdown-menu" role="menu" style="min-width: 100%;" >
 		                 <li>
 		                    <a href="delete.action?&id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}" 
@@ -126,7 +116,7 @@
 					        </a>
 		                 </li>
 		                 <li><a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
-		                <span class="glyphicon  glyphicon-save"></span>download
+		                     <span class="glyphicon  glyphicon-save"></span>download
                              </a></li>
 		                 <li><a href="#" 
 		                        onclick="prom(${id}),$('#win_move').window('open')"><span class="glyphicon glyphicon-move"></span>move</a></li>
@@ -242,5 +232,18 @@
 	</s:form>
    </div>
    <!-- 创建文件夹窗口结束 -->
+   <select id="cc" class="easyui-combotree" style="width:200px;" 
+    data-options="url:'tree_data1.json',required:true">
+   </select>
+   <button onclick="te()">取值</button>
+   <script type="text/javascript">
+   function te(){
+      var t = $("#cc").combotree('tree'); // 得到树对象  
+      var n = t.tree('getSelected'); // 得到选择的节点  
+       alert(n.id); 
+    // var checknodes = $('#cc').tree('getChecked',['checked','indeterminate']);    
+    // alert(checknodes.id);
+   }
+   </script>
 </body>
 </html>

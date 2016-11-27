@@ -1,0 +1,75 @@
+[
+	{
+		"id": 1,
+		"text": "My Documents",
+		"iconCls": "tree-folder",
+		"children": [
+			{
+				"id": 11,
+				"iconCls": "tree-folder",
+				"text": "Photos",
+				"state": "closed",
+				"children": [
+					{
+						"id": 111,
+						"iconCls": "tree-folder",
+						"text": "Friend"
+					},
+					{
+						"id": 112,
+						"iconCls": "tree-folder",
+						"text": "Wife"
+					},
+					{
+						"id": 113,
+						"iconCls": "tree-folder",
+						"text": "Company"
+					}
+				]
+			},
+			{
+				"id": 12,
+				"iconCls": "tree-folder",
+				"text": "Program Files",
+				"children": [
+					{
+						"id": 121,
+						"iconCls": "tree-folder",
+						"text": "Intel"
+					},
+					{
+						"id": 122,
+						"iconCls": "tree-folder",
+						"text": "Java"
+					},
+					{
+						"id": 123,
+						"iconCls": "tree-folder",
+						"text": "Microsoft Office"
+					},
+					{
+						"id": 124,
+						"iconCls": "tree-folder",
+						"text": "Games",
+						"checked": true
+					}
+				]
+			},
+			{
+				"id": 13,
+				"iconCls": "icon-folder",
+				"text": "index.html"
+			},
+			{
+				"id": 14,
+				"iconCls": "tree-file",
+				"text": "about.html"
+			},
+			{
+				"id": 15,
+				"iconCls": "tree-file",
+				"text": "welcome.html"
+			}
+		]
+	}
+]

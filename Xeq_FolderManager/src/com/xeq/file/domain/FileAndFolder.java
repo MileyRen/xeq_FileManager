@@ -34,7 +34,6 @@ public class FileAndFolder implements java.io.Serializable {
 	@Column(name = "name", nullable = false, length = 225)
 	private String name;
 
-	// @Temporal(TemporalType.DATE)
 	@Column(name = "time", nullable = false)
 	private Date time;
 
@@ -47,9 +46,9 @@ public class FileAndFolder implements java.io.Serializable {
 	@Column(name = "type", nullable = false, length = 225)
 	private String type;
 
-	@Column(name = "folderPath", nullable = false, length = 16777216)
+/*	@Column(name = "folderPath", nullable = false, length = 16777216)
 	private String folderPath;
-
+*/
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "deleteFlag", referencedColumnName = "id", nullable = true, unique = false)
 	private FileAndFolder deleteFlag;
@@ -74,7 +73,7 @@ public class FileAndFolder implements java.io.Serializable {
 	}
 
 	public FileAndFolder(Integer id, Integer parentFolderId, String name, Date time, String size, Integer userId,
-			String type, String folderPath, FileAndFolder deleteFlag, Set<FileAndFolder> deleteFlagSets,
+			String type, FileAndFolder deleteFlag, Set<FileAndFolder> deleteFlagSets,
 			String mappingPath) {
 		super();
 		this.id = id;
@@ -84,7 +83,7 @@ public class FileAndFolder implements java.io.Serializable {
 		this.size = size;
 		this.userId = userId;
 		this.type = type;
-		this.folderPath = folderPath;
+		//this.folderPath = folderPath;
 		this.deleteFlag = deleteFlag;
 		this.deleteFlagSets = deleteFlagSets;
 		this.mappingPath = mappingPath;
@@ -146,13 +145,13 @@ public class FileAndFolder implements java.io.Serializable {
 		this.type = type;
 	}
 
-	public String getFolderPath() {
+	/*public String getFolderPath() {
 		return folderPath;
 	}
 
 	public void setFolderPath(String folderPath) {
 		this.folderPath = folderPath;
-	}
+	}*/
 
 	public FileAndFolder getDeleteFlag() {
 		return deleteFlag;
@@ -181,7 +180,7 @@ public class FileAndFolder implements java.io.Serializable {
 	@Override
 	public String toString() {
 		return "FileAndFolder [id=" + id + ", parentFolderId=" + parentFolderId + ", name=" + name + ", time=" + time
-				+ ", size=" + size + ", userId=" + userId + ", type=" + type + ", folderPath=" + folderPath
+				+ ", size=" + size + ", userId=" + userId + ", type=" + type 
 				+ ", deleteFlag=" + deleteFlag + ", mappingPath=" + mappingPath + "]";
 	}
 

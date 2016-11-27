@@ -1,24 +1,3 @@
-/* 自定义 */
-
-
-.icon-folder{
-	background:url('icons/folder.png') no-repeat center center;
-}
-
-.icon-file{
-	background:url('icons/file.png') no-repeat center center;
-}
-
-
-.icon-upload{
-	background:url('icons/upload.png') no-repeat center center;
-}
-
-.icon-download{
-	background:url('icons/download.png') no-repeat center center;
-}
-
-/* 自定义 结束*/
 
 .icon-blank{
 	background:url('icons/blank.gif') no-repeat center center;
