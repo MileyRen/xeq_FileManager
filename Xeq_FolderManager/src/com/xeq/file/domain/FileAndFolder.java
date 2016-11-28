@@ -2,10 +2,12 @@ package com.xeq.file.domain;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -46,9 +48,6 @@ public class FileAndFolder implements java.io.Serializable {
 	@Column(name = "type", nullable = false, length = 225)
 	private String type;
 
-/*	@Column(name = "folderPath", nullable = false, length = 16777216)
-	private String folderPath;
-*/
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "deleteFlag", referencedColumnName = "id", nullable = true, unique = false)
 	private FileAndFolder deleteFlag;
@@ -83,7 +82,6 @@ public class FileAndFolder implements java.io.Serializable {
 		this.size = size;
 		this.userId = userId;
 		this.type = type;
-		//this.folderPath = folderPath;
 		this.deleteFlag = deleteFlag;
 		this.deleteFlagSets = deleteFlagSets;
 		this.mappingPath = mappingPath;
@@ -145,13 +143,6 @@ public class FileAndFolder implements java.io.Serializable {
 		this.type = type;
 	}
 
-	/*public String getFolderPath() {
-		return folderPath;
-	}
-
-	public void setFolderPath(String folderPath) {
-		this.folderPath = folderPath;
-	}*/
 
 	public FileAndFolder getDeleteFlag() {
 		return deleteFlag;
@@ -181,7 +172,7 @@ public class FileAndFolder implements java.io.Serializable {
 	public String toString() {
 		return "FileAndFolder [id=" + id + ", parentFolderId=" + parentFolderId + ", name=" + name + ", time=" + time
 				+ ", size=" + size + ", userId=" + userId + ", type=" + type 
-				+ ", deleteFlag=" + deleteFlag + ", mappingPath=" + mappingPath + "]";
+				+ ", mappingPath=" + mappingPath + "]";
 	}
 
 }

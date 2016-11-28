@@ -12,10 +12,11 @@ function open() {
 function getValue(value) {
 	document.getElementById("toPathId").value = value;
 }
+
 function getValueTest(value) {
 	alert(value);
 	document.getElementById("test").value = value;
-	
+
 }
 
 $(document).ready(function() {

@@ -245,10 +245,6 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 
 					folderService.saveFileAndFolder(fgr);
 
-					// int ret = folderService.uploadFile(parentFolderId,
-					// fileN.substring(0, fileN.lastIndexOf(".")),
-					// fileSize.get(i), uploadFilesContentType.get(i),
-					// folderPath, userId, folderPath, fileObject);
 				}
 
 				addActionMessage("Upload success!");

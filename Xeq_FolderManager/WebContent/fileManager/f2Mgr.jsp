@@ -86,6 +86,8 @@
 					     <span class="glyphicon glyphicon-trash"></span>delete
 					     </a>
 		                 </li>
+		                 <li><a href="#" 
+		                        onclick="prom(${id}),$('#win_move').window('open')"><span class="glyphicon glyphicon-move"></span>move</a></li>
 		              </ul>
                     </div>
 				    </td>
@@ -146,22 +148,19 @@
    <!-- 分页效果结束 -->
    
    <!-- 弹出框开始 -->
-   <!-- 移动文件开始 -->
+   <!-- 移动文件开始 ,文件可移动到任意文件夹-->
    <div id="win_move"  class="easyui-window" title="move a file" 
 	     data-options="modal:true,closed:true,iconCls:'icon-add'"
          style="width: 450px; height: 350px;" closable="true" closed="true">
       <div style="padding:10px 20px 10px 50px; height:90%">
      
       <s:form action="moveAction" id="movef"  method="post">
-            <input type="hidden" name="fromId" id="fromId" value=""/>
+            <select id="testTree" style="width:200px;" ></select>
+            <input type="text" name="fromId" id="fromId" value=""/>
             <input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}"/>
             <input type="hidden" name="parentFolderId" value="${session.parentId }"/>
-       <select name="toId" id="toPathId" onChange="getValue(this.value)">
-          <option value="" selected>------------select a path------------</option>
-          <s:iterator value="#session.folderlist" status="FileAndFolder">
-          <option value ="${id}">${folderPath}</option>
-          </s:iterator>
-        </select>
+            <input type="text" name="toId" id="toPathId" value="">
+            
       </s:form>  
       </div>
       <div style="height:10%;">
@@ -231,19 +230,29 @@
 		</a>
 	</s:form>
    </div>
+   
    <!-- 创建文件夹窗口结束 -->
-   <select id="cc" class="easyui-combotree" style="width:200px;" 
-    data-options="url:'tree_data1.json',required:true">
-   </select>
-   <button onclick="te()">取值</button>
+  <%--  <select id="testTree" style="width:200px;" ></select>
+   <input type="text" id="treevalue" value="" > --%>
+   
    <script type="text/javascript">
-   function te(){
-      var t = $("#cc").combotree('tree'); // 得到树对象  
+/*     function te(){
+      var t = $("#testTree").combotree('tree'); // 得到树对象  
       var n = t.tree('getSelected'); // 得到选择的节点  
        alert(n.id); 
-    // var checknodes = $('#cc').tree('getChecked',['checked','indeterminate']);    
-    // alert(checknodes.id);
-   }
+   } */
+    
+   var data1=<%=session.getAttribute("folderJson")%>;
+   $("#testTree").combotree({
+	 valueField: 'id',
+     textField: 'text',                                  
+     data : data1,
+     required:true,
+     onSelect:function(node){
+    	 document.getElementById("toPathId").value = node.id;
+    	 //alert(node.id);
+    }
+ });
    </script>
 </body>
 </html>

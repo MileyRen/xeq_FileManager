@@ -1,3 +1,2 @@
-方法二: 在SQL语句中使用MYSQL内置的函数取得当前日期时间
-使用now()函数
-insert into xxxx (addDateTime) values (now())
+所有文件和文件夹列表的session: fileList 类型：List<FileAndFolder>
+session.put("folderJson", jsonArray.toString());文件夹的路径

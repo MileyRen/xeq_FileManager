@@ -14,14 +14,16 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
+
+
 	<filter>
 		<filter-name>struts2</filter-name>
 		<filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
-		<init-param>  
-               <!--  //固定格式-->  
-                <param-name>actionPackages</param-name>   
-                <param-value>com.xeq.file</param-value>   
-    </init-param>   
+		<init-param>
+			<!-- //固定格式 -->
+			<param-name>actionPackages</param-name>
+			<param-value>com.xeq.file</param-value>
+		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>struts2</filter-name>
