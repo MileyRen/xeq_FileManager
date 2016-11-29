@@ -124,26 +124,35 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	/********************************************** 返回所有文件夹的JsonArray结束 *************************************************************************/
 
 	/************************* 获取文件路径 ******************************************/
-	public List<String> getToPath(Integer fromId, Integer toId, List<String> list) {
+	public List<String> getToPath(Integer fromId, Integer tId, List<String> list, Integer userId) {
 		FileAndFolder from = folderService.getById(fromId);
-		FileAndFolder fgr = folderService.getById(toId);
-
+		FileAndFolder fgr = folderService.getById(tId);
+		logger.info("fromName==" + from.getName() + "----------frgId=" + fgr.getId() + "------toId=" + tId
+				+ "-------------");
+		// 获取fgr的下一级目录
+		// List<FileAndFolder> ls = folderService.getAll(
+		// "From FileAndFolder where userId=" + userId + " and type='folder' and
+		// parentFolderId=" +tId);
+		// if (ls.size() != 0) {
+		// 若fgr下有文件夹
+		// for (FileAndFolder fl : ls) {
+		// logger.info("toFolders=="+fgr.getName()+"------------------");
+		// if (fl.getName() == from.getName() ||
+		// fl.getName().equals(from.getName())) {
+		// logger.info("有重名文件夹,不进行移动");
+		// return null;
+		// }
+		// }
+		// }
 		// 若有重名文件夹，则不移动
-		
-		//判断要移动的文件夹名称与目的文件夹的子文件夹不重名
-		//
-		//
-		//
-		if (from.getType().equals("folder") || from.getType() == "folder") {
-			if (from.getName() == fgr.getName() || from.getName().equals(fgr.getName()))
-				return null;
-		}
+		// 判断要移动的文件夹名称与目的文件夹的子文件夹不重名
 		if (fgr.getParentFolderId() == fromId) {
+			logger.info("不能移动到子文件夹中");
 			return null;
 		} else {
 			list.add(fgr.getName());
 			if (fgr.getParentFolderId() > -1) {
-				return getToPath(fromId, fgr.getParentFolderId(), list);
+				return getToPath(fromId, fgr.getParentFolderId(), list, userId);
 			} else {
 				return list;
 			}
@@ -177,8 +186,23 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		// 获取移动到的文件夹的路径-------------------------------
 		List<String> list = new ArrayList<String>();
 		String root_Path = null;
+
+		// 获取fgr的下一级目录
+		List<FileAndFolder> ls = folderService
+				.getAll("From FileAndFolder where userId=" + userId + " and type='folder' and parentFolderId=" + toId);
+		if (ls.size() != 0) {
+			// 若fgr下有文件夹
+			for (FileAndFolder fl : ls) {
+				if (fl.getName() == frompojo.getName() || fl.getName().equals(frompojo.getName())) {
+					logger.info("有重名文件夹,不进行移动");
+					return null;
+				}
+			}
+		}
+
 		try {
-			list = getToPath(fromId, toId, list);
+			logger.info("toId=============" + toId);
+			list = getToPath(fromId, toId, list, userId);
 			StringBuffer sf = new StringBuffer();
 			sf.append(user.getFolder());
 			for (int i = list.size() - 1; i >= 0; i--) {
@@ -187,7 +211,7 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			root_Path = sf.toString();
 			logger.info("目标目录==" + root_Path);
 		} catch (NullPointerException e) {
-			logger.info("该文件夹不能移动到子文件夹中");
+			logger.info("移动失败");
 			return "error";
 		}
 		/*

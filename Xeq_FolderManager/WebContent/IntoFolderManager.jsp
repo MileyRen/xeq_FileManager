@@ -27,7 +27,6 @@
 		session.setAttribute("userId", 1);
 		session.setAttribute("basepath", basePath);
 	%>
-	<a href="folderlist.action">点击进入文件管理</a>
 	<br>
 	<a href="pageList.action?pageTag=1">分页测试</a>
 	<br>
