@@ -10,14 +10,16 @@
 			+ path + "/";
 %>
 <head>
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
 </head>
 <body>
-	这是文件管理的入口，点击之后进入文件管理
 	<br>
-
-
 	<%
 		User user = new User();
 		user.setId(1);
@@ -28,8 +30,7 @@
 		session.setAttribute("basepath", basePath);
 	%>
 	<br>
-	<a href="pageList.action?pageTag=1">分页测试</a>
+	&nbsp;<a class="btn btn-info" href="pageList.action?pageTag=1">文件管理页面</a>
 	<br>
-
 </body>
 </html>

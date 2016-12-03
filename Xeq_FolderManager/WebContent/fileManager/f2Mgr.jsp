@@ -11,7 +11,6 @@
 			+ path + "/";
 %>
 <head>
-</style>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
@@ -25,7 +24,6 @@
 <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
 <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
 <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/default/easyui.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/icon.css">
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/fgr.css">
@@ -33,24 +31,44 @@
 	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/demo/demo.css">
  	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.min.js"></script>
 	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.easyui.min.js"></script>
-<script type="text/javascript" src="jsFileManager/folder.js"></script>
+    <script type="text/javascript" src="jsFileManager/folder.js"></script>
 </head>
-
+<div class="container">
 	<s:actionerror/>
 	<!-- 初始化页面列表结束 -->
-	<div class="easyui-panel" style="padding: 10px;">
-	<a class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-back'"
-	   onclick="javascript:window.location.href='backStack.action'">
-		Back
-	</a>
-	<a id="btncreate" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'">
-		Create Folder
-	</a>
+	<!-- 导航按钮开始-->
+	<nav class="navbar navbar-default" role="navigation">
 	
-	<a id="btnupload" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-upload'">
-		Upload
+	<div class="collapse navbar-collapse"
+			id="bs-example-navbar-collapse-1">
+	<ul class="nav navbar-nav">		
+    <ol class="breadcrumb">
+    <li><span class="glyphicon glyphicon-folder-open"></span></li>
+    <s:iterator value="#session.folderStack" status="FileAndFolder">
+    <li>${name}</li>
+    </s:iterator>
+    </ol>
+    </ul>
+	<ul class="nav navbar-nav navbar-right">
+     <li><a href="#modal-container-create" class="btn" data-toggle="modal">
+         <span class="glyphicon glyphicon-plus-sign"></span> Create
+     </a>
+     </li>
+     <li>
+	<a href="#modal-container-upload" class="btn" data-toggle="modal">
+         <span class="glyphicon glyphicon-cloud-upload"></span> Upload
+    </a>	
+	</li>
+	 <li>
+	<a href="#"
+	   onclick="javascript:window.location.href='backStack.action'" class="btn">
+	 <span class="glyphicon glyphicon-circle-arrow-left"></span> Back
 	</a>
-    </div>
+     </li>
+	</ul>
+	</div>
+    </nav>
+    <!-- 导航按钮结束 -->
      <table class="table table-hover">
 		<tr>
 		    <th></th>
@@ -86,8 +104,10 @@
 					     <span class="glyphicon glyphicon-trash"></span>delete
 					     </a>
 		                 </li>
-		                 <li><a href="#" 
-		                        onclick="prom(${id}),$('#win_move').window('open')"><span class="glyphicon glyphicon-move"></span>move</a></li>
+		                 <li>
+		                 <a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})" >
+                            <span class="glyphicon glyphicon-move"></span>move
+                         </a>
 		              </ul>
                     </div>
 				    </td>
@@ -120,8 +140,10 @@
 		                 <li><a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
 		                     <span class="glyphicon  glyphicon-save"></span>download
                              </a></li>
-		                 <li><a href="#" 
-		                        onclick="prom(${id}),$('#win_move').window('open')"><span class="glyphicon glyphicon-move"></span>move</a></li>
+		                 <li>
+		                 <a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})" >
+                            <span class="glyphicon glyphicon-move"></span>move
+                         </a>	
 		              </ul>                                                                                                                                                                                                                                 
                     </div>
                     <!-- 按钮组结束 -->
@@ -147,101 +169,137 @@
 	</div>
    <!-- 分页效果结束 -->
    
+</div>   
    <!-- 弹出框开始 -->
    <!-- 移动文件开始 ,文件可移动到任意文件夹-->
-   <div id="win_move"  class="easyui-window" title="move a file" 
-	     data-options="modal:true,closed:true,iconCls:'icon-add'"
-         style="width: 450px; height: 350px;" closable="true" closed="true">
-      <div style="padding:10px 20px 10px 50px; height:90%">
-     
-      <s:form action="moveAction" id="movef"  method="post">
-            <select id="testTree" style="width:200px;" ></select>
-            <input type="text" name="fromId" id="fromId" value=""/>
-            <input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}"/>
-            <input type="hidden" name="parentFolderId" value="${session.parentId }"/>
-            <input type="text" name="toId" id="toPathId" value="">
-            
-      </s:form>  
-      </div>
-      <div style="height:10%;">
-        <a class="btn btn-info  btn-xs" onclick="javascript:$('form#movef').submit()">
-           <span class="glyphicon glyphicon-move"></span>move</a> 
-        <a href="#" class="btn btn-info  btn-xs"  onclick="javascript:$('#win_move').window('close')">
-	       <span class="glyphicon glyphicon-repeat"></span>cancel</a>
-	  </div>
-   </div>
+   	    <div class="modal fade" id="modal-container-move" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  ×
+                </button>
+                 <h4 class="modal-title" id="myModalLabel">
+                <a href="#" class="btn" >
+                <span class="glyphicon glyphicon-plus" >
+                </span>Move To A Folder...
+                </a>
+                </h4> 
+              </div>
+            <div class="modal-body" style="height:250px">
+             <div class="form-group">
+             <s:form action="moveAction" id="movef"  method="post" role="form" style="padding:10px 20px 10px 80px;" >
+             <select id="testTree" style="width:300px" class="form-control"></select>
+             <input type="hidden" name="fromId" id="fromId" value=""/>
+             <input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}"/>
+             <input type="hidden" name="parentFolderId" value="${session.parentId }"/>
+             <input type="hidden" name="toId" id="toPathId" value="">
+            </s:form>
+            </div>  
+           </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="javascript:$('form#movef').submit()">
+                  submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
     <!-- 移动文件结束 -->
-	<!-- 下载文件夹失败 -->
-	<div id="win_downFolder" class="easyui-window" title="TIP" 
-	     data-options="modal:true,closed:true,iconCls:'icon-tip'"
-         style="width: 250px; height: 100px;" closable="true" closed="true">
-         YOU CAN'T DOWNLOAD A FOLDER!
-         <br><br>
-		<center><a href="#" class="easyui-linkbutton" icon="icon-ok" onclick="javascript:$('#win_downFolder').window('close')">
-			OK
-		</a>
-		</center>
-   </div>
 	
 	<!-- 上传文件窗口 -->
-    <div id="win_upload" class="easyui-window" title="Upload New File"
-         data-options="modal:true,closed:true,iconCls:'icon-upload'"
-         style="width: 600px; height: 350px;" closable="true" closed="true">
-    <div id="tools-bar">
-    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addMore()">Add</a>
-    <a class="easyui-linkbutton" icon="icon-upload" plain="true"  
-       onclick="javascript:$('form#addFiles').submit()" >
-	   Upload
-	</a>
-    </div>    
-     <s:form action="fileUpload" id="addFiles"  method ="post"
-           style="padding:10px 20px 10px 80px;" enctype="multipart/form-data">
-        <s:token />
-		<s:fielderror/>
-		<input type="hidden" name="parentFolderId" value=${session.parentId }>
-		<input type="hidden" name="folderPath" value=${session.parentPath }>
-		<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
-		<div id="more"></div>
-	</s:form>
-		
-    </div>
+	 <div class="modal fade" id="modal-container-upload" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  ×
+                </button>
+                <h5 class="modal-title" id="myModalLabel">
+                 <a href="#" class="btn " onclick="addMore()">
+                 <span class="glyphicon glyphicon-plus" >
+                </span>Please Add A File...
+                </a>
+                </h5>
+              </div>
+              <div class="modal-body">
+                <s:form action="fileUpload" id="addFiles"  method ="post"
+                style="padding:10px 20px 10px 80px;" enctype="multipart/form-data">
+                <s:token />
+		        <s:fielderror/>
+		        <input type="hidden" name="parentFolderId" value=${session.parentId }>
+		        <input type="hidden" name="folderPath" value=${session.parentPath }>
+		        <input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
+		        <div id="more"></div>
+	            </s:form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="javascript:$('form#addFiles').submit()">
+                  Upload
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
     <!-- 上传文件窗口结束 -->
 
 	<!-- 创建文件夹窗口 -->
-	<div id="win_add" class="easyui-window" title="Create New Folder" 
-	     data-options="modal:true,closed:true,iconCls:'icon-add'"
-         style="width: 350px; height: 150px;" closable="true" closed="true">
-	<s:form action="addFolder" id="addF" style="padding:10px 20px 10px 40px;" method ="post">
-		<s:token />
-		<s:fielderror/>
-		<input type="hidden" name="parentFolderId" value=${session.parentId }>
-		<input type="hidden" name="folderPath" value=${session.parentPath }>
-		<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
-		<s:fielderror name="name"/>
-		<input name="name" id="name" type="text" class="form-control" id="firstname" 
-				   placeholder="Please enter a folder name..." required>
-		<br>
-		<a class="easyui-linkbutton" icon="icon-add" onclick="javascript:$('form#addF').submit()">
-			Submit
-		</a>
-		&nbsp;&nbsp;
-		<a href="#" class="easyui-linkbutton" icon="icon-cancel" onclick="javascript:$('#win_add').window('close')">
-			Cancel
-		</a>
-	</s:form>
-   </div>
+	    <div class="modal fade" id="modal-container-create" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  ×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                <a href="#" class="btn" >
+                <span class="glyphicon glyphicon-plus" >
+                </span>Create A Folder...
+                </a>
+                </h4>
+              </div>
+              <div class="modal-body">
+                <s:form action="addFolder" id="addF" style="padding:10px 20px 10px 40px;"
+                method="post">
+                  <s:token />
+                  <s:fielderror />
+                  <input type="hidden" name="parentFolderId" value=${session.parentId }>
+                  <input type="hidden" name="folderPath" value=${session.parentPath }>
+                  <input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
+                  <s:fielderror name="name" />
+                   <div class="input-group">
+                   <span class="input-group-addon">
+                   <span class="glyphicon glyphicon-folder-close"></span>
+                   </span>
+                  <input name="name" id="name" type="text" class="form-control" id="firstname"
+                  placeholder="Please enter a folder name..." required>
+                  </div>
+                  <br>
+                </s:form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="javascript:$('form#addF').submit()">
+                  submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
    
    <!-- 创建文件夹窗口结束 -->
-  <%--  <select id="testTree" style="width:200px;" ></select>
-   <input type="text" id="treevalue" value="" > --%>
-   
    <script type="text/javascript">
-/*     function te(){
-      var t = $("#testTree").combotree('tree'); // 得到树对象  
-      var n = t.tree('getSelected'); // 得到选择的节点  
-       alert(n.id); 
-   } */
-    
    var data1=<%=session.getAttribute("folderJson")%>;
    $("#testTree").combotree({
 	 valueField: 'id',
@@ -254,5 +312,6 @@
     }
  });
    </script>
+   
 </body>
 </html>

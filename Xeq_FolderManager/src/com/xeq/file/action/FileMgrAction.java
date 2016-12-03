@@ -104,23 +104,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		return jt;
 	}
 
-	/** 将json 写入文件，返回一个文件地址 */
-	public boolean writeJson(JSONArray jsonArray, String path) {
-		try {
-			File file = new File(path);
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-			FileWriter fw = new FileWriter(file);
-			fw.write(jsonArray.toString());
-			fw.close();
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
 	/********************************************** 返回所有文件夹的JsonArray结束 *************************************************************************/
 
 	/************************* 获取文件路径 ******************************************/

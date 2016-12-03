@@ -17,7 +17,7 @@
 	<constant name="struts.serve.static.browserCache" value="false" />
 	<!-- 指定由spring负责action对象的创建 	 -->
 	<constant name="struts.objectFactory" value="spring" />
-
+    <constant name="struts.multipart.maxSize" value="524288000" />
 	<!-- 是否开启动态方法调用 -->
 	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
 </struts>

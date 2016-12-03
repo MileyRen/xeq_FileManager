@@ -173,19 +173,19 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		Pattern p = Pattern.compile(regEx);
 		Matcher m = p.matcher(str);
 		return m.replaceAll("").trim();
-
 	}
 
 	// **上传文件,多文件上传*//*
 	@Action(value = "fileUpload", results = {
 			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
 					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }),
-			@Result(name = "error", type = "redirect", location = "pageList.action", params = { "parentFolderId",
-					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }) }, interceptorRefs = {
-							@InterceptorRef(value = "defaultStack", params = { "maxinumSize", "2048" }) })
+			@Result(name = "error", type = "redirect", location = "pageList.action", 
+			params = { "parentFolderId","%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }) }, 
+			interceptorRefs = {
+							@InterceptorRef(value = "defaultStack"),
+							@InterceptorRef(value = "fileUpload",params = { "maxinumSize", "524288000" })})
 	public String uploadFiles() {
 		String retu = "success";
-		// int userId = (int) session.get("userId");
 		User user = (User) session.get("user");
 		if (user == null)
 			return "error";
@@ -277,7 +277,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	// 下载
 	@Action(value = "download", results = { @Result(name = "success", type = "stream", params = { "contentType",
 			"application/octet-stream,charset=utf-8", "contentDisposition", "attachment;filename=\"${downfileName}\"",
-			"inputName", "inputStream", "bufferSize", "4096" }) })
+			"inputName", "inputStream", "bufferSize", "524288000" }) })
 	public String downloadFile() throws Exception {
 		return "success";
 	}
