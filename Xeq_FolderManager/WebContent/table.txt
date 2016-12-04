@@ -1,0 +1,12 @@
+mysql> desc jobInfo;
++-----------------+------------+------+-----+---------+----------------+
+| Field           | Type       | Null | Key | Default | Extra          |
++-----------------+------------+------+-----+---------+----------------+
+| id              | int(11)    | NO   | PRI | NULL    | auto_increment |
+| userId          | int(11)    | NO   |     | NULL    |                |
+| flowBasicInfoId | int(11)    | NO   |     | NULL    |                |
+| bpmn            | text       | YES  |     | NULL    |                |
+| processInfo     | text       | YES  |     | NULL    |                |
+| bgTime          | bigint(20) | YES  |     | NULL    |                |
+| edTime          | bigint(20) | YES  |     | NULL    |                |
++-----------------+------------+------+-----+---------+----------------+

@@ -1,0 +1,15 @@
+<states>
+	<!-- 有几个填几个 -->
+	<script id="和流程里的ID一一对应，如_jbpm-unique-8" name="名字" ret="返回值"
+		pid="执行的pid" bgTime="开始时间" edTime="结束时间" state="执行状态，默认pending，还有running和stop" />
+	<script id="和流程里的ID一一对应，如_jbpm-unique-8" name="名字" ret="返回值"
+		pid="执行的pid" bgTime="开始时间" edTime="结束时间" state="执行状态，默认pending，还有running和stop" />
+	<script id="和流程里的ID一一对应，如_jbpm-unique-8" name="名字" ret="返回值"
+		pid="执行的pid" bgTime="开始时间" edTime="结束时间" state="执行状态，默认pending，还有running和stop" />
+	<script id="和流程里的ID一一对应，如_jbpm-unique-8" name="名字" ret="返回值"
+		pid="执行的pid" bgTime="开始时间" edTime="结束时间" state="执行状态，默认pending，还有running和stop" />
+	<script id="和流程里的ID一一对应，如_jbpm-unique-8" name="名字" ret="返回值"
+		pid="执行的pid" bgTime="开始时间" edTime="结束时间" state="执行状态，默认pending，还有running和stop" />
+	<script id="和流程里的ID一一对应，如_jbpm-unique-8" name="名字" ret="返回值"
+		pid="执行的pid" bgTime="开始时间" edTime="结束时间" state="执行状态，默认pending，还有running和stop" />
+</states>

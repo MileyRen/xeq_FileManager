@@ -23,10 +23,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.gene.utils.User;
+import com.ssh.xep.entity.JobInfo;
 import com.xeq.file.dao.FolderOperate;
 import com.xeq.file.dao.impl.BaseDao;
 import com.xeq.file.domain.FileAndFolder;
 import com.xeq.file.service.FolderService;
+import com.xeq.file.service.JobsService;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -34,8 +36,16 @@ import net.sf.json.JSONObject;
 //@Controller("test")
 public class TestCase extends BaseDao {
 	private FolderService folderService;
+	private JobsService jobsService;
 	private FolderOperate folderOperate;
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+
+	public void ye() {
+		jobsService = (JobsService) context.getBean("jobsService");
+		String hql = "FROM JobInfo where userId=1";
+		List<JobInfo> jList = jobsService.getJobList(hql);
+		System.out.println(jList.size());
+	}
 
 	@Test
 	public void testPath() {
@@ -114,7 +124,6 @@ public class TestCase extends BaseDao {
 		System.out.println(ja.toString());
 	}
 
-
 	/** 获得当前级别的jsonObject */
 	public JSONObject getJson(FileAndFolder fileAndFolder, Integer userId) {
 		folderService = (FolderService) context.getBean("FolderService");
@@ -191,7 +200,7 @@ public class TestCase extends BaseDao {
 		String fileN = "User.hbm.xml";
 		String tp = fileN.substring(fileN.indexOf("."));
 		System.out.println(tp);
-		String dd = fileN.substring(0,fileN.indexOf("."));
+		String dd = fileN.substring(0, fileN.indexOf("."));
 		System.out.println(dd);
 	}
 

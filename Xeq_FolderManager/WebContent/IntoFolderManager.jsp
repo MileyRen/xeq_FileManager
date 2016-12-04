@@ -10,7 +10,8 @@
 			+ path + "/";
 %>
 <head>
-<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
 <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
 <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
 <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
@@ -29,8 +30,9 @@
 		session.setAttribute("userId", 1);
 		session.setAttribute("basepath", basePath);
 	%>
-	<br>
-	&nbsp;<a class="btn btn-info" href="pageList.action?pageTag=1">文件管理页面</a>
+	<br> &nbsp;
+	<a class="btn btn-info" href="pageList.action?pageTag=1">文件管理页面</a>
+	<a class="btn btn-info" href="jobsList.action">作业状态查询</a>
 	<br>
 </body>
 </html>

@@ -1,0 +1,26 @@
+<!-- 工具的绝对路径存在数据库表中 -->
+<!-- 工具的这个XML描述文档随便怎么存 -->
+
+<tool id="数据库中的ID，可以使用先创建后获取ID再更新的形式" name="工具的name" path="工具的绝对路径"
+	interpreter="工具类型，java，python等" version="1.0.0">
+	<description>
+		<!-- 如果定义了name的描述，则也写在这里。 -->
+		<exit_code value="1" description="name描述" />
+	</description>
+	<params>
+		<!-- label是显示出来的东西 -->
+		<input label="这是输入文件" />
+		<output id="输出文件的唯一标识" label="这是输出文件" />
+		<param value="参数，-S等固定的值" type="fixed" />
+		<param label="" type="integer等数字形式" size="长度限制" />
+		<param label="" type="select">
+			<option label="显示出来的东西">
+				<value>值</value>
+			</option>
+		</param>
+		<param label="" type="text" />
+		<!-- 有几个参数写几个标签 -->
+	</params>
+</tool>
+
+

@@ -10,26 +10,22 @@
 	<!-- 开启注解方式 -->
 	<context:annotation-config />
 	<context:component-scan base-package="com.xeq.file*" />
+	<context:component-scan base-package="com.ssh.xep.entity*"/>
 
 	<!-- 导入资源文件 -->
 	<context:property-placeholder location="classpath:db.properties" />
 
 	<!-- 配置C3PO数据源 -->
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
-		p:user="${jdbc.user}"
-        p:password="${jdbc.password}" 
-        p:jdbcUrl="${jdbc.jdbcUrl}]]>"
-		p:driverClass="${jdbc.driverClass}" 
-		p:initialPoolSize="${jdbc.initPoolSize}"
+		p:user="${jdbc.user}" p:password="${jdbc.password}" p:jdbcUrl="${jdbc.jdbcUrl}]]>"
+		p:driverClass="${jdbc.driverClass}" p:initialPoolSize="${jdbc.initPoolSize}"
 		p:maxPoolSize="${jdbc.maxPoolSize}" />
 
 
 	<!-- 配置sessionFactory -->
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
-		p:dataSource-ref="dataSource"
-		p:configLocation="classpath:hibernate.cfg.xml"
-		/>
+		p:dataSource-ref="dataSource" p:configLocation="classpath:hibernate.cfg.xml" />
 	<!-- 配置spring的声明式事务 -->
 	<!-- 1、配置hibernate的事务管理 -->
 	<bean id="transactionManager"

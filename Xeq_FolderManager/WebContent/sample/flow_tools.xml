@@ -1,0 +1,31 @@
+<!-- 工具的绝对路径存在数据库表中 -->
+<!-- 工具的这个XML描述文档随便怎么存 -->
+<!-- 和工具的描述文件不同的是，这里有value属性，保存了取到的值 -->
+<!-- 如果value为空，则没有这个参数 -->
+
+<tools>
+	<tool id="在流程中对应的流程的id，如_jbpm-unique-11" name="工具的名字" version="从工具描述中继承过来，用不到"
+		path="工具的绝对路径" interpreter="工具类型，java，python等" tool-id="工具在数据库里的ID，用来后面生成作业的时候定位工具">
+		<description>
+			<!-- 如果定义了返回值的描述，则也写在这里。 -->
+			<exit_code value="1" description="返回值描述" />
+		</description>
+		<params>
+			<!-- label是显示出来的东西，即使新增属性没有，也要存在该节点 -->
+			<input label="这是输入文件"
+				value="新增的东西，如果是直接指定已经有的文件，则是指定的文件在数据库中的ID，如果是指定的某个节点输出文件，则指定的是某个节点的ID-输出文件的ID"
+				ref="指定文件的类型，如果是文件的ID，则此值为fromDatabase，如果是流程中的某个文件，则此值是fromFlow" />
+			<output id="输出文件的唯一标识" label="这是输出文件"
+				value="新增的值，指定数据库中的某个文件ID作为输出的ID，为0，则随机生成一个文件" path="如果value是0，则此处保存了文件路径" />
+			<param value="参数，-S等固定的值" type="fixed" selected="取到的值，如果是空，则不加这个参数，如果有，则这个值为1" />
+			<param label="" type="integer等数字形式" size="长度限制" value="取到的值" />
+			<param label="" type="select" value="取到的值">
+				<option label="显示出来的东西">值</option>
+			</param>
+			<param label="" type="text" />
+			<!-- 有几个参数写几个标签 -->
+		</params>
+	</tool>
+
+	<!-- 有几个工具则有几个tool标签。 -->
+</tools>

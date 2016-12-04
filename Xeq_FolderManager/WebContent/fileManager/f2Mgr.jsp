@@ -33,7 +33,13 @@
 	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="jsFileManager/folder.js"></script>
 </head>
+<body>	
 <div class="container">
+<!------------------ --菜单栏开始------------------------ -->
+
+<!------------------ --菜单栏结束------------------------ -->	
+   <div class="row clearfix">
+	 <div class="col-md-12 column">
 	<s:actionerror/>
 	<!-- 初始化页面列表结束 -->
 	<!-- 导航按钮开始-->
@@ -171,7 +177,11 @@
 	</div>
    <!-- 分页效果结束 -->
    
-</div>   
+     </div>
+   </div>
+</div> 
+  
+  
    <!-- 弹出框开始 -->
    <!-- 移动文件开始 ,文件可移动到任意文件夹-->
    	    <div class="modal fade" id="modal-container-move" role="dialog" aria-labelledby="myModalLabel"

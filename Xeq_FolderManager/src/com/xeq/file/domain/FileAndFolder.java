@@ -21,7 +21,7 @@ import org.hibernate.annotations.CascadeType;
 import org.springframework.stereotype.Component;
 
 @Entity
-@Table(name = "file_and_folder")
+@Table(name = "file_and_folder", catalog = "xep")
 public class FileAndFolder implements java.io.Serializable {
 	private static final long serialVersionUID = 577049976649031828L;
 
@@ -54,7 +54,7 @@ public class FileAndFolder implements java.io.Serializable {
 
 	@OneToMany(targetEntity = FileAndFolder.class, orphanRemoval = true)
 	@JoinColumn(name = "deleteFlag")
-	@Cascade(value = { CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.ALL ,CascadeType.SAVE_UPDATE})
+	@Cascade(value = { CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.ALL, CascadeType.SAVE_UPDATE })
 	private Set<FileAndFolder> deleteFlagSets = new HashSet<FileAndFolder>();
 
 	// 映射的真实路径
@@ -72,8 +72,7 @@ public class FileAndFolder implements java.io.Serializable {
 	}
 
 	public FileAndFolder(Integer id, Integer parentFolderId, String name, Date time, String size, Integer userId,
-			String type, FileAndFolder deleteFlag, Set<FileAndFolder> deleteFlagSets,
-			String mappingPath) {
+			String type, FileAndFolder deleteFlag, Set<FileAndFolder> deleteFlagSets, String mappingPath) {
 		super();
 		this.id = id;
 		this.parentFolderId = parentFolderId;
@@ -143,7 +142,6 @@ public class FileAndFolder implements java.io.Serializable {
 		this.type = type;
 	}
 
-
 	public FileAndFolder getDeleteFlag() {
 		return deleteFlag;
 	}
@@ -171,8 +169,7 @@ public class FileAndFolder implements java.io.Serializable {
 	@Override
 	public String toString() {
 		return "FileAndFolder [id=" + id + ", parentFolderId=" + parentFolderId + ", name=" + name + ", time=" + time
-				+ ", size=" + size + ", userId=" + userId + ", type=" + type 
-				+ ", mappingPath=" + mappingPath + "]";
+				+ ", size=" + size + ", userId=" + userId + ", type=" + type + ", mappingPath=" + mappingPath + "]";
 	}
 
 }

@@ -21,6 +21,7 @@
 		<!-- 二级缓存相关 -->
 		<!-- 基于annotation的配置 -->
 		<mapping class="com.xeq.file.domain.FileAndFolder" />
+		<mapping class="com.ssh.xep.entity.JobInfo"/>
 		<mapping resource="com/gene/utils/User.hbm.xml"/>
 	</session-factory>
 </hibernate-configuration>
