@@ -1,5 +1,7 @@
 package com.xeq.file.dao.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Stack;
 
@@ -44,7 +46,7 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 
 		criteria.add(criterion).add(criterion2);
 		List<FileAndFolder> list = criteria.list();
-	
+
 		return list;
 	}
 
@@ -55,7 +57,6 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		FileAndFolder fileAndFolder = (FileAndFolder) getSession().createQuery(hql).setInteger("id", Id).uniqueResult();
 		return fileAndFolder;
 	}
-
 
 	@Override
 	public int delete(Integer id) {
@@ -80,6 +81,13 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		query.setFirstResult((page.getCurrentPage() - 1) * page.getPageSize());
 		query.setMaxResults(page.getPageSize());
 		List<FileAndFolder> list = query.list();
+		for (FileAndFolder fileAndFolder : list) {
+			try {
+				fileAndFolder.setName(URLDecoder.decode(fileAndFolder.getName(), "utf-8"));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
 		return list;
 
 	}

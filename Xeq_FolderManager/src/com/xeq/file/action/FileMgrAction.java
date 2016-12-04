@@ -64,86 +64,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private String fromPath;
 	private Integer toId;
 
-	/***************************************** 返回所有文件夹的JsonArray开始 ******************************************************************************/
-	/** 返回所有文件夹的JsonArray */
-	public JSONArray getJsonArray(Integer userId) {
-		String hqlFolder = "From FileAndFolder where userId=" + userId + "  and type='folder'";
-
-		List<FileAndFolder> lists = folderService.getAll(hqlFolder);
-		JSONArray jsonArray = new JSONArray();
-
-		for (FileAndFolder fileAndFolder : lists) {
-			if (fileAndFolder.getParentFolderId() == -1) {
-				jsonArray.add(getJson(fileAndFolder, 1));
-			}
-		}
-		System.out.println(jsonArray.toString());
-		return jsonArray;
-	}
-
-	/** 获得当前级别的jsonObject */
-	public JSONObject getJson(FileAndFolder fileAndFolder, Integer userId) {
-		Integer newPId = fileAndFolder.getId();
-		String hqlFolder = "From FileAndFolder where userId=" + userId + " and type='folder' and parentFolderId="
-				+ newPId;
-		System.out.println("hal=" + hqlFolder);
-		List<FileAndFolder> lists = folderService.getAll(hqlFolder);
-		JSONObject jt = new JSONObject();
-		jt.put("id", fileAndFolder.getId());
-		jt.put("text", fileAndFolder.getName());
-		jt.put("parentId", fileAndFolder.getParentFolderId());
-		jt.put("iconCls", "icon-folder");
-		JSONArray array = new JSONArray();
-		if (lists.size() != 0) {// 若不为最后一层文件夹
-			jt.put("state", "closed");
-			for (FileAndFolder ff : lists) {
-				array.add(getJson(ff, userId));
-			}
-			jt.put("children", array);
-		}
-		return jt;
-	}
-
-	/********************************************** 返回所有文件夹的JsonArray结束 *************************************************************************/
-
-	/************************* 获取文件路径 ******************************************/
-	public List<String> getToPath(Integer fromId, Integer tId, List<String> list, Integer userId) {
-		FileAndFolder from = folderService.getById(fromId);
-		FileAndFolder fgr = folderService.getById(tId);
-		logger.info("fromName==" + from.getName() + "----------frgId=" + fgr.getId() + "------toId=" + tId
-				+ "-------------");
-		// 获取fgr的下一级目录
-		// List<FileAndFolder> ls = folderService.getAll(
-		// "From FileAndFolder where userId=" + userId + " and type='folder' and
-		// parentFolderId=" +tId);
-		// if (ls.size() != 0) {
-		// 若fgr下有文件夹
-		// for (FileAndFolder fl : ls) {
-		// logger.info("toFolders=="+fgr.getName()+"------------------");
-		// if (fl.getName() == from.getName() ||
-		// fl.getName().equals(from.getName())) {
-		// logger.info("有重名文件夹,不进行移动");
-		// return null;
-		// }
-		// }
-		// }
-		// 若有重名文件夹，则不移动
-		// 判断要移动的文件夹名称与目的文件夹的子文件夹不重名
-		if (fgr.getParentFolderId() == fromId) {
-			logger.info("不能移动到子文件夹中");
-			return null;
-		} else {
-			list.add(fgr.getName());
-			if (fgr.getParentFolderId() > -1) {
-				return getToPath(fromId, fgr.getParentFolderId(), list, userId);
-			} else {
-				return list;
-			}
-		}
-	}
-
-	/*********************************************************************/
-
 	@Action(value = "moveAction", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp"),
 			@Result(name = "error", location = "/fileManager/error.jsp"),
 			@Result(name = "input", location = "/fileManager/f2Mgr.jsp") })
@@ -182,24 +102,14 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 				}
 			}
 		}
-
 		try {
 			logger.info("toId=============" + toId);
-			list = getToPath(fromId, toId, list, userId);
-			StringBuffer sf = new StringBuffer();
-			sf.append(user.getFolder());
-			for (int i = list.size() - 1; i >= 0; i--) {
-				sf.append(list.get(i) + File.separator);
-			}
-			root_Path = sf.toString();
+			root_Path = folderService.getToPath(fromId, toId, user.getFolder(), userId);
 			logger.info("目标目录==" + root_Path);
 		} catch (NullPointerException e) {
 			logger.info("移动失败");
 			return "error";
 		}
-		/*
-		 * if (root_Path == null) { return "error"; }
-		 */
 		String from_path = parentPath;
 		logger.info("fromPath===" + from_path);
 		// 获取移动到的文件夹的路径结束-----------------------------
@@ -212,9 +122,15 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		logger.info("from——path是===========" + from_path);
 
 		String new_path = root_Path;
-		String new_mappingPath = topojo.getMappingPath();
-		Integer new_parentFolderId = topojo.getId();
-		FileAndFolder new_delFlag = topojo.getDeleteFlag();
+		
+		String new_mappingPath = user.getFolder();
+		Integer new_parentFolderId = -1;
+		FileAndFolder new_delFlag = null;
+		if (new_path != user.getFolder() || !new_path.equals(user.getFolder())) {// 若不为根目录
+			new_mappingPath = topojo.getMappingPath();
+			new_parentFolderId = topojo.getId();
+			new_delFlag = topojo;
+		}
 
 		boolean moveFlag = folderOperate.removeFileOrFolder(from_path, new_path);
 		if (moveFlag == true) {
@@ -236,17 +152,10 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		User user = (User) session.get("user");
 		if (user == null)
 			return "error";
-
 		int userId = user.getId();
 
-		// 获取文件夹的json串,并将其写入文件
-		JSONArray jsonArray = getJsonArray(userId);
-
-		HttpServletRequest request = ServletActionContext.getRequest();
-		String basePath = request.getServletContext().getRealPath("fileManager/folder.json");
-		logger.info("json文件路径=======" + basePath);
-
-		/** session中放置json的字符串 */
+		// 获取文件夹的json串, session中放置json的字符串
+		JSONArray jsonArray = folderService.getJsonArray(userId);
 		session.put("folderJson", jsonArray.toString());
 
 		String rootPath = user.getFolder();
@@ -256,7 +165,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		if (parentFolderId == null) {
 			parentFolderId = -1;
 		}
-
 		logger.info("当前父Id=" + parentFolderId);
 		FileAndFolder fgr = folderService.getById(parentFolderId);
 		if (fgr != null) {
@@ -268,23 +176,32 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			} catch (EmptyStackException e) {
 				folderStack.push(fgr);
 			}
-
 		}
 		System.out.println("------------------------------输出Stack----------------------------------------");
 		for (FileAndFolder fileAndFolder : folderStack) {
 			System.out.println(fileAndFolder.toString());
 		}
 		System.out.println("------------------------------输出Stack----------------------------------------");
-		folderPath = folderService.parentPath(parentFolderId, folderStack, rootPath);
+		// folderPath = folderService.parentPath(parentFolderId, folderStack,
+		// rootPath);
+		folderPath = folderService.intoPath(parentFolderId, userId, rootPath);
 		logger.info("当前路径==" + folderPath);
 
+		///// 获取当前路径的列表，用于面包屑导航////////
+		List<FileAndFolder> pathList = new ArrayList<FileAndFolder>();
+		List<FileAndFolder> breadcrumb = new ArrayList<FileAndFolder>();
+		pathList = folderService.intoPath(parentFolderId, pathList, userId);
+		if (pathList.size() > 0) {
+			for (int i = pathList.size() - 1; i >= 0; i--) {
+				breadcrumb.add(pathList.get(i));
+			}
+		}
+		session.put("breadcrumb", breadcrumb);
 		String hql = "From FileAndFolder where userId=" + userId + " and parentFolderId=" + parentFolderId;
 		List<FileAndFolder> all_list = folderService.getAll(hql);
-
 		String hqlFolder = "From FileAndFolder where userId=" + userId + " and type='folder'";
 		// 所有文件夹
 		List<FileAndFolder> all_folder = folderService.getAll(hqlFolder);
-
 		pagesource.setTotalRows(all_list.size());// 获取总行数
 
 		if (pageTag != null) {
@@ -308,7 +225,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			} else if (pagesource.getCurrentPage() < 1) {
 				pagesource.setCurrentPage(1);
 			}
-
 			logger.info(pagesource.toString());
 			list = folderService.pageReviwe(pagesource, hql);
 		}
@@ -319,7 +235,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		session.put("parentPath", folderPath);
 		session.put("parentId", parentFolderId);
 		session.put("folderStack", folderStack);
-
 		return "pagerlist";
 	}
 
@@ -328,12 +243,7 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 		User user = (User) session.get("user");
 		Integer userId = user.getId();
 		String rootPath = user.getFolder();
-
-		// 初始化pid
-		// Integer parentId = -1; // folderService.getByFolderOrFiles(userId,
-		// -1).get(0).getId();
 		Integer pid = -1;// 初始化为第一页
-
 		try {
 			pid = folderStack.peek().getParentFolderId();// 获得上一级文件夹
 			folderStack.pop();// 当前父文件夹出栈
@@ -346,8 +256,8 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			System.out.println(fileAndFolder.toString());
 		}
 		System.out.println("------------------------------输出Back Stack----------------------------------------");
-
-		folderPath = folderService.parentPath(pid, folderStack, rootPath);
+		// folderPath = folderService.parentPath(pid, folderStack, rootPath);
+		folderPath = folderService.intoPath(pid, userId, rootPath);
 		logger.info("backfolderPath========" + folderPath);
 
 		session.put("parentPath", folderPath);

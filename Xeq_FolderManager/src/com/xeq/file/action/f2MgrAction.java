@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -214,10 +215,12 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 				for (int i = 0; i < filesCount; i++) {
 					String fileN = uploadFilesFileName.get(i);
 					String tp = fileN.substring(fileN.lastIndexOf("."));
+					fileN = fileN.substring(0, fileN.lastIndexOf("."))+"_"+System.currentTimeMillis()+tp;// 名称,
+					
 					System.out.println("后缀：" + tp + ";名称：" + fileN + ";大小：" + uploadFiles.get(i).length());
 
 					uploadFilesContentType.add(tp);// 类型
-					targetFileNames[i] = fileN;// 名称,不带后缀
+					targetFileNames[i] =fileN;// 名称,全名
 					fileSize.add(FormetFileSize(uploadFiles.get(i).length()));// 大小
 					System.out.println("文件名称：" + targetFileNames[i]);
 
@@ -231,10 +234,9 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 						retu = "error";
 					}
 					// 传入数据库
-
 					FileAndFolder fileObject = folderService.getById(parentFolderId);
 					FileAndFolder fgr = new FileAndFolder();
-					fgr.setName(fileN.substring(0, fileN.lastIndexOf(".")));
+					fgr.setName(URLEncoder.encode(fileN.substring(0, fileN.lastIndexOf(".")),"utf-8"));//,不带后缀
 					fgr.setParentFolderId(parentFolderId);
 					fgr.setSize(fileSize.get(i));
 					fgr.setTime(new Date());
@@ -242,9 +244,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 					fgr.setUserId(userId);
 					fgr.setMappingPath("");
 					fgr.setDeleteFlag(fileObject);
-
 					folderService.saveFileAndFolder(fgr);
-
 				}
 
 				addActionMessage("Upload success!");
@@ -286,7 +286,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	public String getDownloadFileName() {
 		String downFileName = downfileName;
 		try {
-			downFileName = new String(downFileName.getBytes(), "UTF-8");
+			downFileName =URLDecoder.decode(downfileName,"utf-8"); //new String(downFileName.getBytes(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -413,7 +413,8 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	}
 
 	public String getDownfileName() throws UnsupportedEncodingException {
-		return URLEncoder.encode(getDownloadFileName(), "utf-8");
+		//return URLDecoder.decode(getDownloadFileName(), "utf-8");
+		return downfileName;
 	}
 
 	public void setDownfileName(String downfileName) {

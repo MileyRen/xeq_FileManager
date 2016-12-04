@@ -18,7 +18,7 @@
 <meta http-equiv="description" content="This is my page">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Folder And File List</title>
-  <!-- 新 Bootstrap 核心 CSS 文件 -->
+<!-- 新 Bootstrap 核心 CSS 文件 -->
 <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
 <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
 <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
@@ -38,15 +38,17 @@
 	<!-- 初始化页面列表结束 -->
 	<!-- 导航按钮开始-->
 	<nav class="navbar navbar-default" role="navigation">
-	
 	<div class="collapse navbar-collapse"
 			id="bs-example-navbar-collapse-1">
 	<ul class="nav navbar-nav">		
     <ol class="breadcrumb">
-    <li><span class="glyphicon glyphicon-folder-open"></span></li>
-    <s:iterator value="#session.folderStack" status="FileAndFolder">
-    <li>${name}</li>
-    </s:iterator>
+    <li >
+      <a onclick="return into(-1)">
+      <span class="glyphicon glyphicon-folder-open"></span> ROOT</a>
+    </li>
+      <s:iterator value="#session.breadcrumb" status="FileAndFolder">
+    <li >${name}</li>
+      </s:iterator>
     </ol>
     </ul>
 	<ul class="nav navbar-nav navbar-right">
@@ -297,7 +299,6 @@
             </div>
           </div>
         </div>
-   
    <!-- 创建文件夹窗口结束 -->
    <script type="text/javascript">
    var data1=<%=session.getAttribute("folderJson")%>;
@@ -312,6 +313,5 @@
     }
  });
    </script>
-   
 </body>
 </html>

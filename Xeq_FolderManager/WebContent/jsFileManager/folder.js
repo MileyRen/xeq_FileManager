@@ -49,6 +49,7 @@ function post(id) {
 	return temp;
 }
 
+
 function into(id) {
 	var temp = document.createElement("form");
 	temp.action = "pageList.action?pageTag=1&parentFolderId=" + id;

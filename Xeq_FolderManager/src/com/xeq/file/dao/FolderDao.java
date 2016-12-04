@@ -57,11 +57,9 @@ public interface FolderDao {
 	/** 删除单个文件 */
 	int delete(Integer id);
 
-
 	/** 查找父文件夹 */
-	String parentPath(Integer parentFolderId,Stack<FileAndFolder> folderStack,String rootpath);
+	String parentPath(Integer parentFolderId, Stack<FileAndFolder> folderStack, String rootpath);
 
 	/** 级联删除，文件夹删除 */
 	void deleteFolder(FileAndFolder folder);
-
 }

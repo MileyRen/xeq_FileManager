@@ -5,7 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,7 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.gene.utils.User;
 import com.xeq.file.dao.FolderOperate;
 import com.xeq.file.dao.impl.BaseDao;
 import com.xeq.file.domain.FileAndFolder;
@@ -33,6 +36,32 @@ public class TestCase extends BaseDao {
 	private FolderService folderService;
 	private FolderOperate folderOperate;
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+
+	@Test
+	public void testPath() {
+		folderService = (FolderService) context.getBean("FolderService");
+		List<String> list = new ArrayList<String>();
+		list = getToPath(45, list, 1);
+		StringBuffer sf = new StringBuffer();
+		for (int i = list.size() - 1; i >= 0; i--) {
+			sf.append(list.get(i) + File.separator);
+		}
+		String root_Path = sf.toString();
+		System.out.println(root_Path);
+	}
+
+	public List<String> getToPath(Integer tId, List<String> list, Integer userId) {
+		folderService = (FolderService) context.getBean("FolderService");
+		FileAndFolder fgr = folderService.getById(tId);
+		// 若有重名文件夹，则不移动
+		// 判断要移动的文件夹名称与目的文件夹的子文件夹不重名
+		list.add(fgr.getName());
+		if (fgr.getParentFolderId() > -1) {
+			return getToPath(fgr.getParentFolderId(), list, userId);
+		} else {
+			return list;
+		}
+	}
 
 	@Test
 	public void getTest() {
@@ -61,21 +90,30 @@ public class TestCase extends BaseDao {
 		}
 	}
 
-	/** 返回所有文件夹的JsonArray */
-	public JSONArray getJsonArray(Integer userId) {
+	@Test
+	public void testTree() {
 		folderService = (FolderService) context.getBean("FolderService");
-		String hqlFolder = "From FileAndFolder where userId=" + userId + "  and type='folder'";
-
+		String hqlFolder = "From FileAndFolder where userId=1  and type='folder'";
 		List<FileAndFolder> lists = folderService.getAll(hqlFolder);
+
+		JSONArray ja = new JSONArray();
+		JSONObject jObject = new JSONObject();
+		jObject.put("id", -1);
+		jObject.put("text", "root");
+		jObject.put("parentId", -2);
+		jObject.put("iconCls", "icon-folder");
+
 		JSONArray jsonArray = new JSONArray();
 		for (FileAndFolder fileAndFolder : lists) {
 			if (fileAndFolder.getParentFolderId() == -1) {
 				jsonArray.add(getJson(fileAndFolder, 1));
 			}
 		}
-		System.out.println(jsonArray.toString());
-		return jsonArray;
+		jObject.put("children", jsonArray);
+		ja.add(jObject);
+		System.out.println(ja.toString());
 	}
+
 
 	/** 获得当前级别的jsonObject */
 	public JSONObject getJson(FileAndFolder fileAndFolder, Integer userId) {
@@ -119,21 +157,6 @@ public class TestCase extends BaseDao {
 	}
 
 	@Test
-	public void tewrite() {
-		JSONArray jsonArray = getJsonArray(1);
-		System.out.println("jsonArray:" + jsonArray);
-
-		Iterator<Object> it = jsonArray.iterator();
-		while (it.hasNext()) {
-			JSONObject object = (JSONObject) it.next();
-			String string = (String) object.get("text");
-			System.out.println(string);
-
-		}
-		// writeJson(jsonArray, "folder.json");
-	}
-
-	@Test
 	public void te() {
 		folderService = (FolderService) context.getBean("FolderService");
 		String hqlFolder = "From FileAndFolder where userId=1  and type='folder'";
@@ -153,47 +176,6 @@ public class TestCase extends BaseDao {
 	}
 
 	@Test
-	public void testTree() {
-		folderService = (FolderService) context.getBean("FolderService");
-		String hqlFolder = "From FileAndFolder where userId=1  and type='folder'";
-		List<FileAndFolder> lists = folderService.getAll(hqlFolder);
-
-		JSONArray jsonArray = new JSONArray();
-
-		for (FileAndFolder fileAndFolder : lists) {
-			if (fileAndFolder.getParentFolderId() == -1) {
-				jsonArray.add(getJson(fileAndFolder, 1));
-			}
-		}
-		System.out.println(jsonArray.toString());
-	}
-
-	// /** 获得当前级别的jsonObject */
-	// public JSONObject getJson(FileAndFolder fileAndFolder, Integer userId) {
-	// Integer newPId = fileAndFolder.getId();
-	// String hqlFolder = "From FileAndFolder where userId=" + userId + " and
-	// type='folder' and parentFolderId="
-	// + newPId;
-	// System.out.println("hal=" + hqlFolder);
-	// List<FileAndFolder> lists = folderService.getAll(hqlFolder);
-	//
-	// JSONObject jt = new JSONObject();
-	// jt.put("id", fileAndFolder.getId());
-	// jt.put("text", fileAndFolder.getName());
-	// jt.put("parentId", fileAndFolder.getParentFolderId());
-	// jt.put("iconCls", "icon-folder");
-	// JSONArray array = new JSONArray();
-	// if (lists.size() != 0) {// 若不为最后一层文件夹
-	// jt.put("state", "closed");
-	// for (FileAndFolder ff : lists) {
-	// array.add(getJson(ff, userId));
-	// }
-	// jt.put("children", array);
-	// }
-	// return jt;
-	// }
-
-	@Test
 	public void testmove() {
 		File fold = new File("e://java//java");// 某路径下的文件
 		String strNewPath = "e://java//new file1//";// 新路径
@@ -206,10 +188,11 @@ public class TestCase extends BaseDao {
 
 	@Test
 	public void ted() {
-		String name = "dddfasdad/*s)";
-		if (name.contains("/"))
-			System.out.println("name包含：/");
-
+		String fileN = "User.hbm.xml";
+		String tp = fileN.substring(fileN.indexOf("."));
+		System.out.println(tp);
+		String dd = fileN.substring(0,fileN.indexOf("."));
+		System.out.println(dd);
 	}
 
 	// 过滤特殊字符
