@@ -180,11 +180,10 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	@Action(value = "fileUpload", results = {
 			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
 					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }),
-			@Result(name = "error", type = "redirect", location = "pageList.action", 
-			params = { "parentFolderId","%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }) }, 
-			interceptorRefs = {
+			@Result(name = "error", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }) }, interceptorRefs = {
 							@InterceptorRef(value = "defaultStack"),
-							@InterceptorRef(value = "fileUpload",params = { "maxinumSize", "524288000" })})
+							@InterceptorRef(value = "fileUpload", params = { "maxinumSize", "524288000" }) })
 	public String uploadFiles() {
 		String retu = "success";
 		User user = (User) session.get("user");
@@ -214,37 +213,51 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 
 				for (int i = 0; i < filesCount; i++) {
 					String fileN = uploadFilesFileName.get(i);
-					String tp = fileN.substring(fileN.lastIndexOf("."));
-					fileN = fileN.substring(0, fileN.lastIndexOf("."))+"_"+System.currentTimeMillis()+tp;// 名称,
-					
-					System.out.println("后缀：" + tp + ";名称：" + fileN + ";大小：" + uploadFiles.get(i).length());
+					String tp = fileN.substring(fileN.indexOf("."));
+					String fileName = fileN.substring(0, fileN.indexOf("."));
+					// fileN = fileName+"_"+System.currentTimeMillis()+tp;// 名称,
+					//fileN = fileName + tp;
+					/*********** 检查是否有相同文件 ***********/
+					String HQL = "from FileAndFolder WHERE parentFolderId=" + parentFolderId + " AND userId=" + userId
+							+ " AND name='" + fileName + "' AND type='" + tp + "'";
+					List<FileAndFolder> files = folderService.getAll(HQL);
+					int size = files.size();
+					if (size > 0) {
+						logger.info("存在同名文件"+fileN+"，不进行上传");
+						/**********************/
+					} else {
+						System.out.println("后缀：" + tp + ";名称：" + fileName + ";大小：" + uploadFiles.get(i).length());
+						uploadFilesContentType.add( tp);// 类型
+						targetFileNames[i] = fileN;// 名称,全名
+						String fsize = FormetFileSize(uploadFiles.get(i).length());
+						fileSize.add(fsize);//
+						// 大小
+						//fileSize.set(i, FormetFileSize(uploadFiles.get(i).length()));
+						System.out.println("文件名称：" + targetFileNames[i]);
 
-					uploadFilesContentType.add(tp);// 类型
-					targetFileNames[i] =fileN;// 名称,全名
-					fileSize.add(FormetFileSize(uploadFiles.get(i).length()));// 大小
-					System.out.println("文件名称：" + targetFileNames[i]);
+						File targetFile = new File(serverRealPath, targetFileNames[i]);
 
-					File targetFile = new File(serverRealPath, targetFileNames[i]);
-
-					try {
-						FileUtils.copyFile(uploadFiles.get(i), targetFile);
-						logger.info("--------------------文件上传成功---------------");
-					} catch (Exception e) {
-						logger.info("upload failed");
-						retu = "error";
+						try {
+							FileUtils.copyFile(uploadFiles.get(i), targetFile);
+							logger.info("--------------------文件上传成功---------------");
+						} catch (Exception e) {
+							logger.info("upload failed");
+							retu = "error";
+						}
+						// 传入数据库
+						FileAndFolder fileObject = folderService.getById(parentFolderId);
+						FileAndFolder fgr = new FileAndFolder();
+						fgr.setName(URLEncoder.encode(fileName, "utf-8"));// ,不带后缀
+						fgr.setParentFolderId(parentFolderId);
+						//fgr.setSize(fileSize.get(i));
+						fgr.setSize(fsize);
+						fgr.setTime(new Date());
+						fgr.setType(tp);
+						fgr.setUserId(userId);
+						fgr.setMappingPath("");
+						fgr.setDeleteFlag(fileObject);
+						folderService.saveFileAndFolder(fgr);
 					}
-					// 传入数据库
-					FileAndFolder fileObject = folderService.getById(parentFolderId);
-					FileAndFolder fgr = new FileAndFolder();
-					fgr.setName(URLEncoder.encode(fileN.substring(0, fileN.lastIndexOf(".")),"utf-8"));//,不带后缀
-					fgr.setParentFolderId(parentFolderId);
-					fgr.setSize(fileSize.get(i));
-					fgr.setTime(new Date());
-					fgr.setType(uploadFilesContentType.get(i));
-					fgr.setUserId(userId);
-					fgr.setMappingPath("");
-					fgr.setDeleteFlag(fileObject);
-					folderService.saveFileAndFolder(fgr);
 				}
 
 				addActionMessage("Upload success!");
@@ -253,7 +266,9 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 				addActionError("Please select a file.");
 				retu = "error";
 			}
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			e.printStackTrace();
 		}
 		return retu;
@@ -286,7 +301,9 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	public String getDownloadFileName() {
 		String downFileName = downfileName;
 		try {
-			downFileName =URLDecoder.decode(downfileName,"utf-8"); //new String(downFileName.getBytes(), "UTF-8");
+			downFileName = URLDecoder.decode(downfileName, "utf-8"); // new
+																		// String(downFileName.getBytes(),
+																		// "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -413,7 +430,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	}
 
 	public String getDownfileName() throws UnsupportedEncodingException {
-		//return URLDecoder.decode(getDownloadFileName(), "utf-8");
+		// return URLDecoder.decode(getDownloadFileName(), "utf-8");
 		return downfileName;
 	}
 

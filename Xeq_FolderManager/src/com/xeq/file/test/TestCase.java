@@ -76,13 +76,11 @@ public class TestCase extends BaseDao {
 	@Test
 	public void getTest() {
 		folderService = (FolderService) context.getBean("FolderService");
-		List<String> list = new ArrayList<String>();
-		list = getToPath(11, 7, list);
+		String HQL = "from FileAndFolder WHERE parentFolderId=" + 1 + " AND userId=" + 1 + " AND name='" + "User"
+				+ "' AND type='" + ".hbm.x" + "'";
+		List<FileAndFolder> list = folderService.getAll(HQL);
+		System.out.println(list.size());
 
-		System.out.println("输出路径：");
-		for (String string : list) {
-			System.out.println(string);
-		}
 	}
 
 	public List<String> getToPath(Integer fromId, Integer toId, List<String> list) {
