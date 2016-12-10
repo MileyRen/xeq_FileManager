@@ -26,20 +26,13 @@ public class JobInfo implements Serializable {
 	private long bgTime;
 	private long edTime;
 	private String status;
-
+	@Column(name = "status")
 	public String getStatus() {
 		return status;
 	}
 
 	public void setStatus(String status) {
-		if (bgTime == 0 && edTime == 0) {
-			this.status = "Pending...";
-		} else if (bgTime != 0 && edTime == 0) {
-			this.status = "Running or Error";
-
-		} else if (bgTime != 0 && edTime != 0) {
-			this.status = "success";
-		}
+		this.status = status;
 	}
 
 	@Id

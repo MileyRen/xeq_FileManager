@@ -15,6 +15,9 @@
 <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
 <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
 <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+$(function () { $("[data-toggle='tooltip']").tooltip(); });
+</script>
 <title>JobStep</title>
 </head>
 <body>
@@ -29,11 +32,10 @@
 					</div>
 					<div>
 						<ul class="nav navbar-nav">
-							<li><a>bgTime:${jobStep.bgTime}</a></li>
-							<li><a>enTime:${jobStep.edTime}</a></li>
-							<li><a>flowBasicInfoId:${flowBasicInfoId}</a></li>
-							<li><a>status:${jobStep.status}</a></li>
+							<%-- <li><a>bgTime:${jobStep.bgTime}</a></li>
+							<li><a>enTime:${jobStep.edTime}</a></li> --%>
 							<li><a>user:${jobStep.userId}</a></li>
+							<li><a>status:${jobStep.status}</a></li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
 							<li><a href="jobsList.action">BACK</a></li>
@@ -61,6 +63,26 @@
 								</tr>
 							</s:iterator>
 						</table>
+						<table class="table table-condensed">
+						<tr>
+						  <s:iterator value="#session.processInfo" status="JobStep">
+						   <td class="${css}" >
+						     <table >
+							    <tr>
+							         <td data-toggle="tooltip" data-placement="bottom" title="${id }">
+							         ${name}  
+							         <span class="label label-${label}">${state}</span>
+							         </td>
+							    </tr>
+								<tr><td>${bgTime}</td></tr>
+								<tr><td>${edTime}</td></tr>
+								<tr><td></td></tr>
+						      </table>
+					       </td>
+					      </s:iterator>
+						</tr>
+						</table>
+						
 					</div>
 				</div>
 

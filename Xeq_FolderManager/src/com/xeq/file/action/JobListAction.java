@@ -26,6 +26,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 import com.opensymphony.xwork2.Preparable;
 import com.ssh.xep.entity.JobInfo;
+import com.xeq.file.domain.JobCss;
 import com.xeq.file.domain.JobStep;
 import com.xeq.file.service.JobsService;
 
@@ -52,14 +53,16 @@ public class JobListAction extends ActionSupport implements SessionAware, ModelD
 		int userId = user.getId();
 		String hql = "FROM JobInfo where userId=" + userId;
 		List<JobInfo> jList = jobsService.getJobList(hql);
+		List<JobCss> jcList = jobsService.getJobCss(jList);
+		
 		for (JobInfo jobInfo : jList) {
 			try {
 				jobInfo.setProcessInfo(URLDecoder.decode(jobInfo.getProcessInfo(), "UTF-8"));
-				
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
 		}
+		session.put("jcList", jcList);		
 		session.put("jList", jList);
 		return SUCCESS;
 	}

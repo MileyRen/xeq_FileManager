@@ -30,6 +30,14 @@ public class TestPath {
 	private JobsService jobsService;
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
 
+	
+	@Test 
+	public void TestTime(){
+	Date date = new Date();
+	SimpleDateFormat ss = new SimpleDateFormat("YYYY-MM-dd");
+	
+	System.out.println(ss.format(date));
+	}
 	@Test
 	public void te(){
 		String time = "1480853714302";

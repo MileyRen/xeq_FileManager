@@ -19,19 +19,21 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Folder And File List</title>
 <!-- 新 Bootstrap 核心 CSS 文件 -->
-<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
 <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
 <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
 <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
 <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/default/easyui.css">
-	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/icon.css">
-	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/fgr.css">
-	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/themes/bootstrap/pagination.css">
-	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.3.6/demo/demo.css">
- 	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.min.js"></script>
-	<script type="text/javascript" src="jquery-easyui-1.3.6/jquery.easyui.min.js"></script>
-    <script type="text/javascript" src="jsFileManager/folder.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="styleRen/jquery-easyui-1.3.6/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="styleRen/jquery-easyui-1.3.6/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="styleRen/jquery-easyui-1.3.6/themes/fgr.css">
+	<link rel="stylesheet" type="text/css" href="styleRen/jquery-easyui-1.3.6/themes/bootstrap/pagination.css">
+	<link rel="stylesheet" type="text/css" href="styleRen/jquery-easyui-1.3.6/demo/demo.css">
+ 	<script type="text/javascript" src="styleRen/jquery.min.js"></script>
+	<script type="text/javascript" src="styleRen/jquery-easyui-1.3.6/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="styleRen/jsFileManager/folder.js"></script>
 </head>
 <body>	
 <div class="container">
@@ -145,9 +147,10 @@
 					        <span class="glyphicon glyphicon-trash"></span>delete
 					        </a>
 		                 </li>
-		                 <li><a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
+		                 <li> <a href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}"> 
 		                     <span class="glyphicon  glyphicon-save"></span>download
-                             </a></li>
+                          </a>
+                         </li>
 		                 <li>
 		                 <a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})" >
                             <span class="glyphicon glyphicon-move"></span>move

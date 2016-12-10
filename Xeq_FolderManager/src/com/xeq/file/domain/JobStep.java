@@ -11,7 +11,7 @@ public class JobStep {
 	private String edTime;
 	private String state;
 
-	//样式
+	// 样式
 	private String css;
 	private String label;
 
@@ -68,8 +68,12 @@ public class JobStep {
 	}
 
 	public void setBgTime(String bgTime) {
-		SimpleDateFormat ss = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-		this.bgTime = ss.format(Long.parseLong(bgTime));
+		if (bgTime == "" || bgTime.equals("")) {
+			this.bgTime = "";
+		} else {
+			SimpleDateFormat ss = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss");
+			this.bgTime = ss.format(Long.parseLong(bgTime));
+		}
 	}
 
 	public String getEdTime() {
@@ -77,8 +81,12 @@ public class JobStep {
 	}
 
 	public void setEdTime(String edTime) {
-		SimpleDateFormat ss = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-		this.edTime = ss.format(Long.parseLong(edTime));
+		if (edTime == "" || edTime.equals("")) {
+			this.edTime = "";
+		} else {
+			SimpleDateFormat ss = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss");
+			this.edTime = ss.format(Long.parseLong(edTime));
+		}
 	}
 
 	public String getState() {

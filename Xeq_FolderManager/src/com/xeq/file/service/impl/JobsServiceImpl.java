@@ -1,5 +1,6 @@
 package com.xeq.file.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.Attribute;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.ssh.xep.entity.JobInfo;
 import com.xeq.file.dao.JobsDao;
+import com.xeq.file.domain.JobCss;
 import com.xeq.file.domain.JobStep;
 import com.xeq.file.service.JobsService;
 
@@ -78,6 +80,37 @@ public class JobsServiceImpl implements JobsService {
 			getNodes(e, lists);// 递归
 		}
 		return lists;
+	}
+
+	@Override
+	public List<JobCss> getJobCss(List<JobInfo> jlist) {
+		List<JobCss> jcList = new ArrayList<JobCss>();
+		if(jlist.size()>0){
+			for (JobInfo jobInfo: jlist) {
+				JobCss jCss =new JobCss();
+				jCss.setId(jobInfo.getId());
+				jCss.setBgTime(Long.toString(jobInfo.getBgTime()));
+				jCss.setBpmn(jobInfo.getBpmn());
+				jCss.setEdTime(Long.toString(jobInfo.getEdTime()));
+				jCss.setFlowBasicInfoId(jCss.getFlowBasicInfoId());
+				jCss.setProcessInfo(jobInfo.getProcessInfo());
+				jCss.setUserId(jobInfo.getUserId());
+				jCss.setStatus(jobInfo.getStatus());
+				String value = jobInfo.getStatus();
+				if (value == "pending" || value.equals("pending")) {
+					jCss.setCss("active");
+					jCss.setLabel("default");
+				} else if (value == "stop" || value.equals("stop")) {
+					jCss.setCss("success");
+					jCss.setLabel("success");
+				} else {
+					jCss.setCss("info");
+					jCss.setLabel("info");
+				}
+				jcList.add(jCss);
+			}
+		}
+		return jcList;
 	}
 
 }
