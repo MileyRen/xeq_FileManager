@@ -191,6 +191,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 			return "error";
 		int userId = user.getId();
 
+		int failedSize = 0;
 		try {
 			// 文件上传到真正的路径，然后在数据库进行映射
 			if (uploadFiles != null) {
@@ -216,23 +217,23 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 					String tp = fileN.substring(fileN.indexOf("."));
 					String fileName = fileN.substring(0, fileN.indexOf("."));
 					// fileN = fileName+"_"+System.currentTimeMillis()+tp;// 名称,
-					//fileN = fileName + tp;
+					// fileN = fileName + tp;
 					/*********** 检查是否有相同文件 ***********/
 					String HQL = "from FileAndFolder WHERE parentFolderId=" + parentFolderId + " AND userId=" + userId
 							+ " AND name='" + fileName + "' AND type='" + tp + "'";
 					List<FileAndFolder> files = folderService.getAll(HQL);
 					int size = files.size();
 					if (size > 0) {
-						logger.info("存在同名文件"+fileN+"，不进行上传");
+						failedSize += 1;
+						logger.info("存在同名文件" + fileN + "，不进行上传");
 						/**********************/
 					} else {
 						System.out.println("后缀：" + tp + ";名称：" + fileName + ";大小：" + uploadFiles.get(i).length());
-						uploadFilesContentType.add( tp);// 类型
+						uploadFilesContentType.add(tp);// 类型
 						targetFileNames[i] = fileN;// 名称,全名
 						String fsize = FormetFileSize(uploadFiles.get(i).length());
 						fileSize.add(fsize);//
 						// 大小
-						//fileSize.set(i, FormetFileSize(uploadFiles.get(i).length()));
 						System.out.println("文件名称：" + targetFileNames[i]);
 
 						File targetFile = new File(serverRealPath, targetFileNames[i]);
@@ -249,7 +250,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 						FileAndFolder fgr = new FileAndFolder();
 						fgr.setName(URLEncoder.encode(fileName, "utf-8"));// ,不带后缀
 						fgr.setParentFolderId(parentFolderId);
-						//fgr.setSize(fileSize.get(i));
+						// fgr.setSize(fileSize.get(i));
 						fgr.setSize(fsize);
 						fgr.setTime(new Date());
 						fgr.setType(tp);
@@ -259,7 +260,8 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 						folderService.saveFileAndFolder(fgr);
 					}
 				}
-
+				session.put("failedSize", failedSize);
+				logger.info("上传失败了：" + failedSize + "个");
 				addActionMessage("Upload success!");
 				retu = "success";
 			} else {

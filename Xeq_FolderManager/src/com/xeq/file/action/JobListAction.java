@@ -3,16 +3,19 @@ package com.xeq.file.action;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Namespace;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.SessionAware;
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -34,13 +37,16 @@ import com.xeq.file.service.JobsService;
 @ParentPackage("struts-default")
 @Controller("jobListAction")
 @Scope("prototype")
-public class JobListAction extends ActionSupport implements SessionAware, ModelDriven<JobInfo>, Preparable {
+public class JobListAction extends ActionSupport
+		implements SessionAware, ServletRequestAware, ModelDriven<JobInfo>, Preparable {
 	private static final long serialVersionUID = -8335181902779435263L;
 	private static Logger logger = Logger.getLogger(JobListAction.class);
 	private Map<String, Object> session;
+	private HttpServletRequest request;
 	@Autowired
 	private JobsService jobsService;
 	private Integer id;
+	private JobInfo jobInfo;
 
 	@Action(value = "jobsList", results = { @Result(name = "success", location = "/jobInfoList/JobInfoList.jsp"),
 			@Result(name = "input", location = "login.jsp") })
@@ -52,9 +58,31 @@ public class JobListAction extends ActionSupport implements SessionAware, ModelD
 		}
 		int userId = user.getId();
 		String hql = "FROM JobInfo where userId=" + userId;
-		List<JobInfo> jList = jobsService.getJobList(hql);
+		String createTime = request.getParameter("createTime");
+		long fTime = jobsService.getTime(request.getParameter("fTime"));
+		long tTime = jobsService.getTime(request.getParameter("tTime"));
+		String sort = request.getParameter("sort");
+		String sortByTime = request.getParameter("sortByTime");
+		String sortDA = request.getParameter("sortDA");
+
+		StringBuffer sf = new StringBuffer();
+		sf.append(hql);
+
+		if (jobInfo.getStatus() != null && !jobInfo.getStatus().equals("ALL")) {
+			sf.append(jobInfo.getStatus());
+		}
+		if (createTime != null && createTime.equals("select")) {
+			sf.append(" and bgTime between " + fTime + " and " + tTime + " ");
+		}
+		if (sort != null && sort.equals("select")) {
+			sf.append(sortByTime + sortDA);
+		}
+		String HQL = sf.toString();
+
+		logger.info("hql=="+HQL);
+		List<JobInfo> jList = jobsService.getJobList(HQL);
 		List<JobCss> jcList = jobsService.getJobCss(jList);
-		
+
 		for (JobInfo jobInfo : jList) {
 			try {
 				jobInfo.setProcessInfo(URLDecoder.decode(jobInfo.getProcessInfo(), "UTF-8"));
@@ -62,7 +90,7 @@ public class JobListAction extends ActionSupport implements SessionAware, ModelD
 				e.printStackTrace();
 			}
 		}
-		session.put("jcList", jcList);		
+		session.put("jcList", jcList);
 		session.put("jList", jList);
 		return SUCCESS;
 	}
@@ -81,9 +109,9 @@ public class JobListAction extends ActionSupport implements SessionAware, ModelD
 		JobInfo jf = jobsService.getJobInfo(id);
 		/** 获取processInfo内容 */
 		String processInfo = jf.getProcessInfo();
-		
+
 		session.put("jobStep", jf);
-	
+
 		/***** 解析processInfo *****/
 		Document document;
 		try {
@@ -121,6 +149,14 @@ public class JobListAction extends ActionSupport implements SessionAware, ModelD
 		this.jobsService = jobsService;
 	}
 
+	public void setJobInfo(JobInfo jobInfo) {
+		this.jobInfo = jobInfo;
+	}
+
+	public JobInfo getJobInfo() {
+		return jobInfo;
+	}
+
 	@Override
 	public void prepare() throws Exception {
 	}
@@ -135,6 +171,11 @@ public class JobListAction extends ActionSupport implements SessionAware, ModelD
 	@Override
 	public JobInfo getModel() {
 		return model;
+	}
+
+	@Override
+	public void setServletRequest(HttpServletRequest request) {
+		this.request = request;
 	}
 
 }

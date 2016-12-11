@@ -1,7 +1,12 @@
 package com.xeq.file.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import javax.rmi.CORBA.Tie;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
@@ -85,9 +90,9 @@ public class JobsServiceImpl implements JobsService {
 	@Override
 	public List<JobCss> getJobCss(List<JobInfo> jlist) {
 		List<JobCss> jcList = new ArrayList<JobCss>();
-		if(jlist.size()>0){
-			for (JobInfo jobInfo: jlist) {
-				JobCss jCss =new JobCss();
+		if (jlist.size() > 0) {
+			for (JobInfo jobInfo : jlist) {
+				JobCss jCss = new JobCss();
 				jCss.setId(jobInfo.getId());
 				jCss.setBgTime(Long.toString(jobInfo.getBgTime()));
 				jCss.setBpmn(jobInfo.getBpmn());
@@ -102,8 +107,8 @@ public class JobsServiceImpl implements JobsService {
 					jCss.setLabel("default");
 				} else if (value == "stop" || value.equals("stop")) {
 					jCss.setCss("success");
-					jCss.setLabel("success");
-				} else {
+					jCss.setLabel("primary");
+				} else if (value == "running" || value.equals("running")) {
 					jCss.setCss("info");
 					jCss.setLabel("info");
 				}
@@ -111,6 +116,20 @@ public class JobsServiceImpl implements JobsService {
 			}
 		}
 		return jcList;
+	}
+
+	@Override
+	public long getTime(String date) {
+		
+		long time = 0;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			Date date1 = sdf.parse(date);
+			time = date1.getTime();
+		} catch (Exception e) {
+			return 0;
+		}
+		return time;
 	}
 
 }

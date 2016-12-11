@@ -1,5 +1,6 @@
 package com.xeq.file.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.dom4j.Element;
@@ -20,4 +21,7 @@ public interface JobsService {
 
 	/** 解析JobInfo */
 	List<JobCss> getJobCss(List<JobInfo> jlist);
+
+	/** 将String转换为Time */
+	long getTime(String date);
 }

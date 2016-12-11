@@ -19,62 +19,19 @@
 <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
 <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 <!-- bootstrap date插件 -->
-
 <script type="text/javascript" src="styleRen/bootstrap/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript"  src="styleRen/bootstrap/locals/bootstrap-datetimepicker.fr.js" charset="UTF-8"></script>
-
 <body>
-
 	<div class="container">
 		<div class="page-header">
 			<div class="row clearfix">
 				<div class="col-md-12 column">
-					<form action="" id="searchJobs" class="form-horizontal"  role="form" method="post">
-						<div class="form-group">
-						Job Status:<select required name="status" style="width:50px">
-							<option value="" selected>ALL</option>
-							<option value="">SUCCESS</option>
-							<option value="">RUN</option>
-							<option value="">ERROR</option>
-						</select> 
-						Create Time:
-						<input type="checkbox" name="createTime" value="true">
-						
-						<% Date date = new Date();
-						   SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd"); 
-						%>
-                       From: <div class="input-group date form_date" data-date="<%=new Date() %>" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" 
-                       data-link-format="yyyy-mm-dd" style="width: 150px ;display:inline-table">
-                                 <input class="form-control" size="16" type="text" value="<%=df.format(date) %>" readonly style="height:80%">
-					             <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                            </div>
-				            <input type="hidden" id="dtp_input1" name="fromTime" value="">
-						To:
-                            <div class="input-group date form_date col-md-5" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" 
-                            data-link-format="yyyy-mm-dd" style="width: 150px;display:inline-table">
-                                 <input class="form-control" size="16" type="text" value="<%=df.format(date) %>" readonly style="height:80%">
-					             <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                            </div>
-				            <input type="hidden" id="dtp_input2" name="toTime"  value="">
-						
-						SortBy:
-						<input type="checkbox" name="sort" value="true">
-						<select name="sortByTime">
-						   <option value="bgTime" selected>bgTime</option>
-						   <option value="edTime">edTime</option>
-						</select>
-						<select name="sortDA">
-							<option value="desc" selected>desc</option>
-							<option value="asc">asc</option>
-						</select> 
-						<a class="btn btn-info btn-xs" onclick="javascript:$('form#searchJobs').submit()"> 
-						<span class="glyphicon glyphicon-search"></span>SEARCH</a>
-						</div>
-					</form>
+					<jsp:include page="jobSearch.jsp"></jsp:include>
 				</div>
 			</div>
 		</div>
-		<table class="table table-hover">
+		<div id="show">
+		<table class="table table-hover" id="jobList">
 			<tr>
 				<th>id</th>
 				<th>bgTime</th>
@@ -97,6 +54,7 @@
 				</tr>
 			</s:iterator>
 		</table>
+		</div>
 		<!-- 分页效果开始 -->
 		<div>
 			<ul class="pagination">
@@ -109,8 +67,22 @@
 		</div>
 		<!--分页效果结束 -->
 	</div>
-
+        
+        
 <script type="text/javascript">
+    $(document).ready(function(){
+    	/* $("#btnSe").click(function(){
+    		 $.ajax({
+    		    type: 'post',
+    		    url: 'jobsList.action',
+    		    data: $("#search").serialize(),
+    		    success: function(msg) {
+    		    }
+    		});
+    		
+    	}); */
+    	
+    });
 	$('.form_date').datetimepicker({
         language:  'en',
         weekStart: 1,

@@ -2,6 +2,7 @@
  * 
  */
 
+
 function prom(value) {
 	document.getElementById("fromId").value = value;
 }
@@ -49,7 +50,6 @@ function post(id) {
 	return temp;
 }
 
-
 function into(id) {
 	var temp = document.createElement("form");
 	temp.action = "pageList.action?pageTag=1&parentFolderId=" + id;
@@ -92,45 +92,45 @@ function addMore() {
 
 function addMore_old() {
 	var div = document.getElementById("more");
-    var div1 = document.createElement("div");
-    div.setAttribute("class","input-append");
+	var div1 = document.createElement("div");
+	div.setAttribute("class", "input-append");
 	var br = document.createElement("br");
-	var text="Browse"
+	var text = "Browse"
 	var input = document.createElement("input");
-	input.id="lefile";
+	input.id = "lefile";
 	input.type = "file";
 	input.name = "uploadFiles";
-	
-	var span=document.createElement("span");
-	span.className="glyphicon glyphicon-folder-open";
-    var a = document.createElement("a");
-	a.setAttribute("class","btn");
-	a.onclick="$(\'input[id=lefile]\').click();";
+
+	var span = document.createElement("span");
+	span.className = "glyphicon glyphicon-folder-open";
+	var a = document.createElement("a");
+	a.setAttribute("class", "btn");
+	a.onclick = "$(\'input[id=lefile]\').click();";
 	a.appendChild(span);
-	a.innerHTML=text;
-	
-	var input2= document.createElement("input");
-	input2.id="photoCover";
-	input2.setAttribute("class","input-large");
-	input2.type="text";
-	input2.style="height: 30px;";
-	
+	a.innerHTML = text;
+
+	var input2 = document.createElement("input");
+	input2.id = "photoCover";
+	input2.setAttribute("class", "input-large");
+	input2.type = "text";
+	input2.style = "height: 30px;";
+
 	div.appendChild(br);
 	div.appendChild(input);
 	div.appendChild(a);
 	div.appendChild(input2);
 	div.appendChild(br);
-	document.getElementById("a").onclick="$(\'input[id=lefile]\').click();";
-	//<input id="lefile" type="file" style="display: none">
+	document.getElementById("a").onclick = "$(\'input[id=lefile]\').click();";
+	// <input id="lefile" type="file" style="display: none">
 	// <div class="input-append">
 	// <a class="btn" onclick="$(\'input[id=lefile]\').click();">
-	//<span class="glyphicon glyphicon-folder-open"></span> Browse
-	//</a>
-	//<input  id="photoCover" class="input-large" type="text"  style="height: 30px;" readOnly="true">
+	// <span class="glyphicon glyphicon-folder-open"></span> Browse
+	// </a>
+	// <input id="photoCover" class="input-large" type="text" style="height:
+	// 30px;" readOnly="true">
 	// </div>
 	// }
 	$('input[id=lefile]').change(function() {
 		$('#photoCover').val($(this).val());
 	});
 }
-

@@ -3,27 +3,20 @@ package com.xeq.file.test;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.gene.utils.User;
-import com.ssh.xep.entity.JobInfo;
 import com.xeq.file.dao.FolderOperate;
 import com.xeq.file.dao.impl.BaseDao;
 import com.xeq.file.domain.FileAndFolder;
@@ -41,10 +34,14 @@ public class TestCase extends BaseDao {
 	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
 
 	public void ye() {
-		jobsService = (JobsService) context.getBean("jobsService");
-		String hql = "FROM JobInfo where userId=1";
-		List<JobInfo> jList = jobsService.getJobList(hql);
-		System.out.println(jList.size());
+		String dateString = "2012-12-06 ";
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+			Date date = sdf.parse(dateString);
+			System.out.println(date);
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	@Test
