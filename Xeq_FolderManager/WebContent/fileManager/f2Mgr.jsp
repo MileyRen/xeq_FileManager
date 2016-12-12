@@ -213,14 +213,13 @@
 					<s:form action="fileUpload" id="addFiles" method="post" style="padding: 10px 20px 10px 80px;"
 						enctype="multipart/form-data">
 						<s:token />
-						<s:fielderror />
+						<%-- <s:fielderror /> --%>
 						<input type="hidden" name="parentFolderId" value=${session.parentId }>
 						<input type="hidden" name="folderPath" value=${session.parentPath }>
 						<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
 						<div id="more"></div>
 						<div style="display: none">
 							<button id="upl">up</button>
-							
 						</div>
 					</s:form>
 				</div>
@@ -273,22 +272,28 @@
 	<!-- 创建文件夹窗口结束 -->
 	<script type="text/javascript">
 	$(document).ready(function() {
+		
+		var failedSize=<%=session.getAttribute("failedSize")%>;
+		if(failedSize!=null){
+		var sucSize=<%=session.getAttribute("sucSize")%>;
+		alert("Success:"+sucSize+"; Failed: "+failedSize);
+		<%session.setAttribute("failedSize", null);%>
+		} 
 		$("#up").click(function() {
 			var btn = document.getElementById('upl');
 			btn.click();
-			<%-- var failedSize=<%=(int) session.getAttribute("failedSize")%>;
-			alert("Filed: "+failedSize);
-			<%session.setAttribute("failedSize",0);%>  --%>
+			
 		});
 		$("#upl").click(function() {
 			$.ajax({
 				type : 'post',
 				url : 'fileUpload.action',
+				async:false,
 				data : $("#addFiles").serialize(),
 				success : function(msg) {
-				}
+					//location.reload();
+				},
 			});
-		
 
 		});
 	});

@@ -17,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts2.convention.annotation.Action;
@@ -24,6 +26,7 @@ import org.apache.struts2.convention.annotation.InterceptorRef;
 import org.apache.struts2.convention.annotation.Namespace;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.SessionAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -117,10 +120,10 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	public String createFolder() {
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
 		logger.debug("--------创建文件夹------------");
-		// int userId = (int) session.get("userId");
 		User user = (User) session.get("user");
 		if (user == null)
-			return "error";
+			{session.put("creatFolder", "Create Folder failed!");
+			return "error";}
 
 		int userId = user.getId();
 		if (name == null || name.equals("")) {
@@ -192,20 +195,22 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		int userId = user.getId();
 
 		int failedSize = 0;
+		int sucSize=0;
 		try {
 			// 文件上传到真正的路径，然后在数据库进行映射
 			if (uploadFiles != null) {
 				// 存到folderPath中
-				String serverRealPath = folderPath;// ServletActionContext.getServletContext().getRealPath(folderPath);
-				logger.info("---------------servletRealPath=" + serverRealPath + "------------------");
+				String serverRealPath = folderPath;
+				// logger.info("---------------servletRealPath=" +
+				// serverRealPath + "------------------");
 				File dir = new File(serverRealPath);
 				if (!dir.exists()) {
-					addActionError("Upload Error!");
+					// addActionError("Upload Error!");
 					retu = "error";
 				}
 				filesCount = uploadFiles.size();
 				if (filesCount == 0) {
-					addFieldError("uploadFiles", "Please select a file!");
+					// addFieldError("uploadFiles", "Please select a file!");
 					return "error";
 				}
 				uploadFilesContentType = new ArrayList<String>();
@@ -216,8 +221,6 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 					String fileN = uploadFilesFileName.get(i);
 					String tp = fileN.substring(fileN.indexOf("."));
 					String fileName = fileN.substring(0, fileN.indexOf("."));
-					// fileN = fileName+"_"+System.currentTimeMillis()+tp;// 名称,
-					// fileN = fileName + tp;
 					/*********** 检查是否有相同文件 ***********/
 					String HQL = "from FileAndFolder WHERE parentFolderId=" + parentFolderId + " AND userId=" + userId
 							+ " AND name='" + fileName + "' AND type='" + tp + "'";
@@ -259,18 +262,19 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 						fgr.setDeleteFlag(fileObject);
 						folderService.saveFileAndFolder(fgr);
 					}
+					sucSize = filesCount-failedSize;
 				}
+				
+				session.put("sucSize", sucSize);
 				session.put("failedSize", failedSize);
-				logger.info("上传失败了：" + failedSize + "个");
-				addActionMessage("Upload success!");
+				logger.info("上传失败了：" + failedSize + "个；成功了："+sucSize+"个");
+				// addActionMessage("Upload success!");
 				retu = "success";
 			} else {
-				addActionError("Please select a file.");
+				// addActionError("Please select a file.");
 				retu = "error";
 			}
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return retu;
@@ -432,7 +436,6 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	}
 
 	public String getDownfileName() throws UnsupportedEncodingException {
-		// return URLDecoder.decode(getDownloadFileName(), "utf-8");
 		return downfileName;
 	}
 
