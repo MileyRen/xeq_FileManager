@@ -86,10 +86,9 @@
 						<s:if test="type=='folder'">
 							<tr>
 							    <td><input class="delbulk" type="checkbox" value="[arr]${id}[arr]${type}[arr]${name}"></td>
-								<td onclick="return into(${id})"><span class="icon tree-folder"></span></td>
-								<td onclick="return into(${id})">${id}</td>
+								<td onclick="return into(${id})"><span class="icon tree-folder"></span> ${id}</td>
 								<td onclick="return into(${id})">${name}</td>
-								<td onclick="return into(${id})"><s:date name="time" format="yyyy-MM-dd" /></td>
+								<td onclick="return into(${id})"><s:date name="time" format="yyyy-MM-dd"/></td>
 								<td onclick="return into(${id})">${type}</td>
 								<td onclick="return into(${id})">${size}</td>
 								<td onclick="return into(${id})">${folderPath}</td>
@@ -115,8 +114,7 @@
 						<s:if test="type!='folder'">
 							<tr>
 							<td><input  class="delbulk" type="checkbox" value="[arr]${id}[arr]${type}[arr]${name}"></td>
-								<td><span class="icon tree-file"></span></td>
-								<td>${id}</td>
+								<td><span class="icon tree-file"></span> ${id}</td>
 								<td>${name}</td>
 								<td><s:date name="time" format="yyyy-MM-dd" /></td>
 								<td>${type}</td>
@@ -129,7 +127,7 @@
 											class="glyphicon glyphicon-pencil"></span> edit <span class="caret"></span></a>
 										<ul class="dropdown-menu" role="menu" style="min-width: 100%;">
 											<li><a
-												href="delete.action?&id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
+												href="delete.action?id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
 												onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;"> <span
 													class="glyphicon glyphicon-trash"></span>delete
 											</a></li>
@@ -137,8 +135,8 @@
 												href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
 													<span class="glyphicon  glyphicon-save"></span>download
 											</a></li>
-											<li><a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})"> <span
-													class="glyphicon glyphicon-move"></span>move
+											<li><a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})"> 
+											<span class="glyphicon glyphicon-move"></span>move
 											</a>
 										</ul>
 									</div> <!-- 按钮组结束 -->

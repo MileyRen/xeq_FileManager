@@ -81,7 +81,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 					"%{parentFolderId}" }) })
 	public String deleteBulk() {
 
-		/*HttpServletRequest request = ServletActionContext.getRequest();
+		HttpServletRequest request = ServletActionContext.getRequest();
 		User user = (User) session.get("user");
 		if (user == null) {
 			return "error";
@@ -111,7 +111,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 				logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
 				boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
 			}
-		}*/
+		}
 		return "success";
 	}
 
