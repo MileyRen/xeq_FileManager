@@ -64,13 +64,16 @@
 						<li><a href="#" onclick="javascript:window.location.href='backStack.action'" class="btn">
 								<span class="glyphicon glyphicon-circle-arrow-left"></span> Back
 						</a></li>
+						<li><button type="submit" onclick="delbulk()">delete</button></li>
+						<li><button type="submit">move</button></li>
 					</ul>
 				</div>
 				</nav>
 				<!-- 导航按钮结束 -->
 				<table class="table table-hover">
 					<tr>
-						<th></th>
+						<th><input type="checkbox" 
+						onclick="if(this.checked==true){allCheck('delbulk',true);}else{allCheck('delbulk',false);}"></th>
 						<th>id</th>
 						<th>name</th>
 						<th>updateTime</th>
@@ -82,6 +85,7 @@
 					<s:iterator value="#session.fileList" status="FileAndFolder">
 						<s:if test="type=='folder'">
 							<tr>
+							    <td><input class="delbulk" type="checkbox" value="[arr]${id}[arr]${type}[arr]${name}"></td>
 								<td onclick="return into(${id})"><span class="icon tree-folder"></span></td>
 								<td onclick="return into(${id})">${id}</td>
 								<td onclick="return into(${id})">${name}</td>
@@ -110,6 +114,7 @@
 					<s:iterator value="#session.fileList" status="FileAndFolder">
 						<s:if test="type!='folder'">
 							<tr>
+							<td><input  class="delbulk" type="checkbox" value="[arr]${id}[arr]${type}[arr]${name}"></td>
 								<td><span class="icon tree-file"></span></td>
 								<td>${id}</td>
 								<td>${name}</td>
@@ -309,6 +314,7 @@
     	 //alert(node.id);
     }
  });
-   </script>
+   </script> 
+
 </body>
 </html>

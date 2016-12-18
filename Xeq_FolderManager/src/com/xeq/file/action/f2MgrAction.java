@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -21,12 +20,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.InterceptorRef;
 import org.apache.struts2.convention.annotation.Namespace;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
-import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.SessionAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -57,6 +56,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	private PageSource pagesource;
 	private Integer id;
 	private Map<String, Object> session;
+
 	private Integer parentFolderId;
 	private String folderPath;// 父文件夹路径，用于新建文件夹时
 	private String name;
@@ -76,13 +76,54 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	// 分页
 	private String pageTag;
 
+	@Action(value = "delbulk", results = {
+			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
+					"%{parentFolderId}" }) })
+	public String deleteBulk() {
+
+		/*HttpServletRequest request = ServletActionContext.getRequest();
+		User user = (User) session.get("user");
+		if (user == null) {
+			return "error";
+		}
+		System.out.println("parentFolder-====" + parentFolderId);
+		String folderPath = (String) session.get("parentPath");
+		Integer userId = user.getId();
+
+		int delsize = Integer.parseInt(request.getParameter("delsize"));
+		System.out.println("delsuize===" + delsize);
+		System.out.println("fplderPath=" + folderPath);
+		for (int i = 0; i < delsize; i++) {
+			int id = Integer.parseInt(request.getParameter("id[" + i + "]"));
+			String name = request.getParameter("name[" + i + "]");
+			String type = request.getParameter("type[" + i + "]");
+
+			if (!type.equals("folder") && type != "folder") {
+				logger.info("delet file....." + id);
+				int flag = folderService.delete(id);
+				logger.info("删除：" + flag + ";删除文件：" + folderPath + name + type);
+				boolean ret = folderOperate.delete(folderPath + name + type);
+			} else {
+				logger.info("delet folder...." + id);
+				FileAndFolder folder = folderService.getById(id);
+				logger.info("删除的文件夹ID=" + getId());
+				folderService.deleteFolder(folder);
+				logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
+				boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
+			}
+		}*/
+		return "success";
+	}
+
 	@Action(value = "delete", results = {
 			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
 					"%{parentFolderId}", "pagesource.currentPage", "%{pagesource.currentPage}" }) })
 	public String deleteFile() {
 		logger.debug("------删除单个文件-----------\n");
-		// Integer userId = (Integer) session.get("userId");
 		User user = (User) session.get("user");
+		if (user == null) {
+			return "error";
+		}
 		Integer userId = user.getId();
 
 		int flag = folderService.delete(id);
@@ -97,12 +138,13 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	public String deleteFolder() {
 		logger.debug("------删除文件夹-----------\n");
 		User user = (User) session.get("user");
+		if (user == null) {
+			return "error";
+		}
 		Integer userId = user.getId();
 		FileAndFolder folder = folderService.getById(id);
 		logger.info("删除的文件夹ID=" + getId());
 		folderService.deleteFolder(folder);
-
-		session.get("");
 		logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
 		boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
 
@@ -121,9 +163,10 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
 		logger.debug("--------创建文件夹------------");
 		User user = (User) session.get("user");
-		if (user == null)
-			{session.put("creatFolder", "Create Folder failed!");
-			return "error";}
+		if (user == null) {
+			session.put("creatFolder", "Create Folder failed!");
+			return "error";
+		}
 
 		int userId = user.getId();
 		if (name == null || name.equals("")) {
@@ -195,7 +238,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		int userId = user.getId();
 
 		int failedSize = 0;
-		int sucSize=0;
+		int sucSize = 0;
 		try {
 			// 文件上传到真正的路径，然后在数据库进行映射
 			if (uploadFiles != null) {
@@ -262,12 +305,12 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 						fgr.setDeleteFlag(fileObject);
 						folderService.saveFileAndFolder(fgr);
 					}
-					sucSize = filesCount-failedSize;
+					sucSize = filesCount - failedSize;
 				}
-				
+
 				session.put("sucSize", sucSize);
 				session.put("failedSize", failedSize);
-				logger.info("上传失败了：" + failedSize + "个；成功了："+sucSize+"个");
+				logger.info("上传失败了：" + failedSize + "个；成功了：" + sucSize + "个");
 				// addActionMessage("Upload success!");
 				retu = "success";
 			} else {

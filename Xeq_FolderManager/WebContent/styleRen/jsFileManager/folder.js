@@ -1,7 +1,50 @@
 /**
  * 
  */
+function delbulk() {
+	var str = "delbulk.action?";
+	var i=0;
+	$("input[class='delbulk']:checked").each(function() {
+		var temp = $(this).val();
+		var strArray = new Array(); 
+		strArray  = temp.split("[arr]");
+		str+="id["+i+"]="+strArray[1]+"&type["+i+"]="+strArray[2]+"&name["+i+"]="+strArray[3]+"&";
+		i++;
+	});
+	str+="delsize="+i;
+	alert(str);
+	var temp = document.createElement("form");
+	temp.action =str;
+	temp.method = "post";
+	temp.style.display = "none";
+	document.body.appendChild(temp);
+	temp.submit();
+}
 
+function movebulk() {
+	$("input[name='delbulk']:checked").each(function() {
+	});
+}
+
+// 全选和全不选（第一个参数为复选框名称，第二个参数为是全选还是全不选）
+function allCheck(name, boolValue) {
+	var allvalue = document.getElementsByClassName(name);
+	for (var i = 0; i < allvalue.length; i++) {
+		if (allvalue[i].type == "checkbox")
+			allvalue[i].checked = boolValue;
+	}
+}
+
+// 反选 参数为复选框名称
+function reserveCheck(name) {
+	var revalue = document.getElementsByClassName(name);
+	for (i = 0; i < revalue.length; i++) {
+		if (revalue[i].checked == true)
+			revalue[i].checked = false;
+		else
+			revalue[i].checked = true;
+	}
+}
 
 function prom(value) {
 	document.getElementById("fromId").value = value;
