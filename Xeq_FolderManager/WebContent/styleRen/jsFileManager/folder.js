@@ -1,7 +1,7 @@
 /**
  * 
  */
-function delbulk() {
+function delbulk(arr) {
 	var str = "delbulk.action?";
 	var i=0;
 	$("input[class='delbulk']:checked").each(function() {
@@ -11,8 +11,8 @@ function delbulk() {
 		str+="id["+i+"]="+strArray[1]+"&type["+i+"]="+strArray[2]+"&name["+i+"]="+strArray[3]+"&";
 		i++;
 	});
-	str+="delsize="+i;
-	alert(str);
+	str+="delsize="+i+"&parentFolderId="+arr;
+	//alert(str);
 	var temp = document.createElement("form");
 	temp.action =str;
 	temp.method = "post";
@@ -75,13 +75,13 @@ $(document).ready(function() {
 	});
 });
 
-function del() {
+/*function del() {
 	if (confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')) {
 		return true;
 	} else {
 		return false;
 	}
-}
+}*/
 
 function post(id) {
 	var temp = document.createElement("form");
@@ -131,49 +131,4 @@ function addMore() {
 	div.appendChild(button);
 	div.appendChild(br);
 
-}
-
-function addMore_old() {
-	var div = document.getElementById("more");
-	var div1 = document.createElement("div");
-	div.setAttribute("class", "input-append");
-	var br = document.createElement("br");
-	var text = "Browse"
-	var input = document.createElement("input");
-	input.id = "lefile";
-	input.type = "file";
-	input.name = "uploadFiles";
-
-	var span = document.createElement("span");
-	span.className = "glyphicon glyphicon-folder-open";
-	var a = document.createElement("a");
-	a.setAttribute("class", "btn");
-	a.onclick = "$(\'input[id=lefile]\').click();";
-	a.appendChild(span);
-	a.innerHTML = text;
-
-	var input2 = document.createElement("input");
-	input2.id = "photoCover";
-	input2.setAttribute("class", "input-large");
-	input2.type = "text";
-	input2.style = "height: 30px;";
-
-	div.appendChild(br);
-	div.appendChild(input);
-	div.appendChild(a);
-	div.appendChild(input2);
-	div.appendChild(br);
-	document.getElementById("a").onclick = "$(\'input[id=lefile]\').click();";
-	// <input id="lefile" type="file" style="display: none">
-	// <div class="input-append">
-	// <a class="btn" onclick="$(\'input[id=lefile]\').click();">
-	// <span class="glyphicon glyphicon-folder-open"></span> Browse
-	// </a>
-	// <input id="photoCover" class="input-large" type="text" style="height:
-	// 30px;" readOnly="true">
-	// </div>
-	// }
-	$('input[id=lefile]').change(function() {
-		$('#photoCover').val($(this).val());
-	});
 }

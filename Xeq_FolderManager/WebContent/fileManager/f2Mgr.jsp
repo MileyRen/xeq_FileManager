@@ -55,17 +55,18 @@
 						</ol>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-						<li><a href="#modal-container-create" class="btn" data-toggle="modal"> <span
+					<li><a href="#" onclick="delbulk(${parentId})"  class="btn"><span class="glyphicon glyphicon-trash"></span> Delete</a></li>
+					<li><a href="#" onclick="movebulk(${parentId})" class="btn"><span class="glyphicon glyphicon-move"></span> Move</a></li>
+						<li><a href="#modal-container-create" class="btn" > <span
 								class="glyphicon glyphicon-plus-sign"></span> Create
 						</a></li>
-						<li><a href="#modal-container-upload" class="btn" data-toggle="modal"> <span
+						<li><a href="#modal-container-upload" class="btn" > <span
 								class="glyphicon glyphicon-cloud-upload"></span> Upload
 						</a></li>
 						<li><a href="#" onclick="javascript:window.location.href='backStack.action'" class="btn">
 								<span class="glyphicon glyphicon-circle-arrow-left"></span> Back
 						</a></li>
-						<li><button type="submit" onclick="delbulk()">delete</button></li>
-						<li><button type="submit">move</button></li>
+						
 					</ul>
 				</div>
 				</nav>
@@ -97,13 +98,23 @@
 										<a class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown"> <span
 											class="glyphicon  glyphicon-pencil"></span> edit <span class="caret"></span></a>
 										<ul class="dropdown-menu" role="menu" style="min-width: 100%;">
-											<li><a
+											<li>
+											<form id="del${id}" action="deleteDir.action" method="post" style="display:none">
+											<input type="hidden" name="id" value="${id}">
+											<input type="hidden" name="folderPath" value="${folderPath}">
+											<input type="hidden" name="parentFolderId" value="${parentFolderId}">
+											<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
+											</form>
+											<a onclick="if(confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')==false)return false;else{$('form#del${id}').submit();}"> <span class="glyphicon glyphicon-trash"></span>delete
+											</a>
+											<%-- <a
 												href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
 												onclick="return del();"> <span class="glyphicon glyphicon-trash"></span>delete
-											</a></li>
-											<li><a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})"> <span
+											</a> --%></li>
+											<li><a href="#modal-container-move" onclick="prom(${id})"> <span
 													class="glyphicon glyphicon-move"></span>move
 											</a>
+											</li>
 										</ul>
 									</div>
 								</td>
@@ -126,18 +137,38 @@
 										<a class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown"> <span
 											class="glyphicon glyphicon-pencil"></span> edit <span class="caret"></span></a>
 										<ul class="dropdown-menu" role="menu" style="min-width: 100%;">
-											<li><a
+											<li>
+											<form id="del${id}" action="delete.action" method="post" style="display:none">
+											<input type="hidden" name="id" value="${id}">
+											<input type="hidden" name="folderPath" value="${folderPath}">
+											<input type="hidden" name="name" value="${name }">
+											<input type="hidden" name="type" value="${type }">
+											<input type="hidden" name="parentFolderId" value="${parentFolderId}">
+											<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}">
+											</form>
+											<a onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;else{$('form#del${id}').submit();}"> <span class="glyphicon glyphicon-trash"></span>delete
+											</a>
+											
+										<%-- 	<a
 												href="delete.action?id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
 												onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;"> <span
 													class="glyphicon glyphicon-trash"></span>delete
-											</a></li>
-											<li><a
+											</a> --%></li>
+											<li>
+											<form id="down${id}" action="download.action" method="post">
+											<input type="hidden" name="folderPath" value="${folderPath}">
+											<input type="hidden" name="name" value="${name}">
+											<input type="hidden" name="type" value="${type}">
+											<input type="hidden" name="downfileName" value="${name}${type}">
+											</form>
+											<a onclick="javascript:$('form#down${id}').submit()"><span class="glyphicon  glyphicon-save"></span>download</a>
+											<%-- <a
 												href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
 													<span class="glyphicon  glyphicon-save"></span>download
-											</a></li>
+											</a> --%></li>
 											<li><a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})"> 
 											<span class="glyphicon glyphicon-move"></span>move
-											</a>
+											</a></li>
 										</ul>
 									</div> <!-- 按钮组结束 -->
 								</td>
