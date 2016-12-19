@@ -324,8 +324,8 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
-					<button type="button" class="btn btn-primary" onclick="javascript:$('form#addF').submit()">
-						submit</button>
+					<button type="button" class="btn btn-primary" onclick="$('form#addF').submit()">
+						submit</button> 
 				</div>
 			</div>
 		</div>
@@ -333,13 +333,13 @@
 	<!-- 创建文件夹窗口结束 -->
 	<script type="text/javascript">
 	$(document).ready(function() {
-		
 		var failedSize=<%=session.getAttribute("failedSize")%>;
 		if(failedSize!=null){
 		var sucSize=<%=session.getAttribute("sucSize")%>;
 		alert("Success:"+sucSize+"; Failed: "+failedSize);
 		<%session.setAttribute("failedSize", null);%>
 		} 
+		
 		$("#up").click(function() {
 			var btn = document.getElementById('upl');
 			btn.click();
@@ -352,10 +352,8 @@
 				async:false,
 				data : $("#addFiles").serialize(),
 				success : function(msg) {
-					//location.reload();
 				},
 			});
-
 		});
 	});
    
@@ -367,7 +365,6 @@
      required:true,
      onSelect:function(node){
     	 document.getElementById("toPathId").value = node.id;
-    	 //alert(node.id);
     }
  });
    
@@ -378,7 +375,6 @@
 	     required:true,
 	     onSelect:function(node){
 	    	 document.getElementById("BulktoPathId").value = node.id;
-	    	 //alert(node.id);
 	    }
 	 });
    </script> 

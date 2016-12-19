@@ -115,7 +115,8 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 					delNum++;
 				}
 			}
-			logger.info("删除成功"+delNum+"个..");
+			session.put("delNum", delNum);
+			logger.info("删除成功" + delNum + "个..");
 		}
 		return "success";
 	}
@@ -129,11 +130,12 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		if (user == null) {
 			return "error";
 		}
-		Integer userId = user.getId();
-
 		int flag = folderService.delete(id);
 		logger.info("删除：" + flag + ";删除文件：" + folderPath + name + type);
 		boolean ret = folderOperate.delete(folderPath + name + type);
+		if (ret) {
+			session.put("del", "delte file success");
+		}
 		return "success";
 	}
 
@@ -146,13 +148,14 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		if (user == null) {
 			return "error";
 		}
-		Integer userId = user.getId();
 		FileAndFolder folder = folderService.getById(id);
 		logger.info("删除的文件夹ID=" + getId());
 		folderService.deleteFolder(folder);
 		logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
 		boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
-
+		if (flag) {
+			session.put("del", "delte folder success");
+		}
 		return "success";
 	}
 
@@ -167,54 +170,68 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	public String createFolder() {
 		// 创建文件夹,要判断同级文件夹是否重名，若重名则重新插入
 		logger.debug("--------创建文件夹------------");
+		boolean ret = true;
 		User user = (User) session.get("user");
 		if (user == null) {
-			session.put("creatFolder", "Create Folder failed!");
-			return "error";
-		}
-
-		int userId = user.getId();
-		if (name == null || name.equals("")) {
-			addFieldError("name", "The name " + name + " is not null.");
-			System.out.println("name is not null");
-			return "error";
-		}
-		String str = StringFilter(name);
-		if (str.length() > 0) {
-			addFieldError("name", "FolderName cant't contions '/','\',';','*','\"','<','>'");
-			return "error";
-		}
-
-		// 判断name是否已被占用
-		List<FileAndFolder> fileAndFolders = folderService.getByFolderOrFiles(userId, parentFolderId);
-		for (FileAndFolder fileAndFolder : fileAndFolders) {
-			if (name == fileAndFolder.getName() || name.equals(fileAndFolder.getName())) {
-				addFieldError("name", "The " + name + " is already exist!");
-				System.out.println("The name " + name + " is already exist!");
-				return "error";
+			ret = false;
+		} else {
+			int userId = user.getId();
+			if (name == null || name.equals("")) {
+				addFieldError("name", "The name " + name + " is not null.");
+				ret = false;
+			} else {
+				String str = StringFilter(name);
+				if (str.length() > 0) {
+					addFieldError("name", "FolderName cant't contions '/','\',';','*','\"','<','>'");
+					ret = false;
+				} else {
+					// 判断name是否已被占用
+					List<FileAndFolder> fileAndFolders = folderService.getAll("From FileAndFolder where userId="
+							+ userId + " and parentFolderId= " + parentFolderId + " and type='folder'");
+					for (FileAndFolder fileAndFolder : fileAndFolders) {
+						if (name == fileAndFolder.getName() || name.equals(fileAndFolder.getName())) {
+							addFieldError("name", "The " + name + " is already exist!");
+							System.out.println("The name " + name + " is already exist!");
+							ret = false;
+							break;
+						}
+					}
+					if (ret) {
+						FileAndFolder parentObject = folderService.getById(parentFolderId);
+						FileAndFolder fgr = new FileAndFolder();
+						fgr.setName(name);
+						fgr.setParentFolderId(parentFolderId);
+						fgr.setSize("");
+						fgr.setTime(new Date());
+						fgr.setType("folder");
+						fgr.setUserId(userId);
+						fgr.setMappingPath(null);
+						fgr.setDeleteFlag(parentObject);
+						int id = folderService.createFolder(fgr);
+						// 创建文件夹
+						boolean flag = folderOperate.createRealFolder(name, folderPath);
+						logger.info("parentFolder==" + parentFolderId);
+						if (id > 0) {
+							ret = true;
+						} else {
+							ret = false;
+						}
+					}
+				}
 			}
 		}
-		FileAndFolder parentObject = folderService.getById(parentFolderId);
-		FileAndFolder fgr = new FileAndFolder();
-		fgr.setName(name);
-		fgr.setParentFolderId(parentFolderId);
-		fgr.setSize("");
-		fgr.setTime(new Date());
-		fgr.setType("folder");
-		fgr.setUserId(userId);
-		fgr.setMappingPath(null);
-		fgr.setDeleteFlag(parentObject);
-		int id = folderService.createFolder(fgr);
-
-		// 创建文件夹
-		boolean flag = folderOperate.createRealFolder(name, folderPath);
-		logger.info("parentFolder==" + parentFolderId);
-
-		if (id > 0) {
+		if (!ret) {
+			session.put("createFolder", "Create Failed !");
+		} else {
+			session.put("createFolder", "Create Success !");
+		}
+		logger.info("创建===" + session.get("createFolder"));
+		if (ret) {
 			return "createFolder";
 		} else {
 			return "error";
 		}
+
 	}
 
 	// 过滤特殊字符

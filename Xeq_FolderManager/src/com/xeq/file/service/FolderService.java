@@ -31,7 +31,7 @@ public interface FolderService {
 	/** 保存新的对象到数据库中 */
 	int saveFileAndFolder(FileAndFolder fileAndFolder);
 
-	List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId);
+	//List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId);
 
 	/** 按照Id查找文件 */
 	FileAndFolder getById(Integer Id);

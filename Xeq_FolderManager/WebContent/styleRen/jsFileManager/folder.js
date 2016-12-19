@@ -1,42 +1,47 @@
 /**
  * 
  */
+
 function delbulk(arr) {
 	var str = "delbulk.action?";
-	var i=0;
-	$("input[class='delbulk']:checked").each(function() {
-		var temp = $(this).val();
-		var strArray = new Array(); 
-		strArray  = temp.split("[arr]");
-		str+="id["+i+"]="+strArray[1]+"&type["+i+"]="+strArray[2]+"&name["+i+"]="+strArray[3]+"&";
-		i++;
-	});
-	str+="delsize="+i+"&parentFolderId="+arr;
-	//alert(str);
+	var i = 0;
+	$("input[class='delbulk']:checked")
+			.each(
+					function() {
+						var temp = $(this).val();
+						var strArray = new Array();
+						strArray = temp.split("[arr]");
+						str += "id[" + i + "]=" + strArray[1] + "&type[" + i
+								+ "]=" + strArray[2] + "&name[" + i + "]="
+								+ strArray[3] + "&";
+						i++;
+					});
+	str += "delsize=" + i + "&parentFolderId=" + arr;
 	var temp = document.createElement("form");
-	temp.action =str;
+	temp.action = str;
 	temp.method = "post";
 	temp.style.display = "none";
 	document.body.appendChild(temp);
 	temp.submit();
 }
 
-function promList(arr1,arr2) {
+function promList(arr1, arr2) {
 	var str = "BulkMove.action?";
-	var i=0;
+	var i = 0;
 	$("input[class='delbulk']:checked").each(function() {
 		var temp = $(this).val();
-		var strArray = new Array(); 
-		strArray  = temp.split("[arr]");
-		str+="fromId["+i+"]="+strArray[1]+"&";
+		var strArray = new Array();
+		strArray = temp.split("[arr]");
+		str += "fromId[" + i + "]=" + strArray[1] + "&";
 		i++;
 	});
-	str+="movesize="+i;
+	str += "movesize=" + i;
 	var toIdBulk = document.getElementById("BulktoPathId").value;
-	str+="&toIdBulk="+toIdBulk+"&pagesource.currentPage="+arr1+"&parentFolderId="+arr2;
-	//alert(str);
+	str += "&toIdBulk=" + toIdBulk + "&pagesource.currentPage=" + arr1
+			+ "&parentFolderId=" + arr2;
+	// alert(str);
 	var temp = document.createElement("form");
-	temp.action =str;
+	temp.action = str;
 	temp.method = "post";
 	temp.style.display = "none";
 	document.body.appendChild(temp);
@@ -92,13 +97,10 @@ $(document).ready(function() {
 	});
 });
 
-/*function del() {
-	if (confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')) {
-		return true;
-	} else {
-		return false;
-	}
-}*/
+/*
+ * function del() { if (confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN
+ * THE FOLDER?')) { return true; } else { return false; } }
+ */
 
 function post(id) {
 	var temp = document.createElement("form");

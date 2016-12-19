@@ -36,19 +36,19 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 		return path;
 	}
 
-	@Override
-	public List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId) {
-		log.debug("-------------查询文件及文件夹-----------------");
-
-		Criteria criteria = getSession().createCriteria(FileAndFolder.class);
-		Criterion criterion = Restrictions.eq("userId", userId);// 查询条件
-		Criterion criterion2 = Restrictions.eq("parentFolderId", parentFolderId);
-
-		criteria.add(criterion).add(criterion2);
-		List<FileAndFolder> list = criteria.list();
-
-		return list;
-	}
+//	@Override
+//	public List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId) {
+//		log.debug("-------------查询文件及文件夹-----------------");
+//
+//		Criteria criteria = getSession().createCriteria(FileAndFolder.class);
+//		Criterion criterion = Restrictions.eq("userId", userId);// 查询条件
+//		Criterion criterion2 = Restrictions.eq("parentFolderId", parentFolderId);
+//
+//		criteria.add(criterion).add(criterion2);
+//		List<FileAndFolder> list = criteria.list();
+//
+//		return list;
+//	}
 
 	@Override
 	public FileAndFolder getById(Integer Id) {

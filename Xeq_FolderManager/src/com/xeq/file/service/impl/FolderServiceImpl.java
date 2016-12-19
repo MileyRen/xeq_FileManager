@@ -27,10 +27,10 @@ public class FolderServiceImpl extends BaseDao implements FolderService {
 		this.folderDao = folderDao;
 	}
 
-	@Override
-	public List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId) {
-		return folderDao.getByFolderOrFiles(userId, parentFolderId);
-	}
+//	@Override
+//	public List<FileAndFolder> getByFolderOrFiles(Integer userId, Integer parentFolderId) {
+//		return folderDao.getByFolderOrFiles(userId, parentFolderId);
+//	}
 
 	@Override
 	public FileAndFolder getById(Integer Id) {
