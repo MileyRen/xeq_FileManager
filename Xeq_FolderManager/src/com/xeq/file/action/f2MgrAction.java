@@ -109,8 +109,8 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 				FileAndFolder folder = folderService.getById(id);
 				logger.info("删除的文件夹ID=" + getId());
 				folderService.deleteFolder(folder);
-				logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
-				boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
+				logger.info("删除文件夹：" + folderPath + folder.getName() + "/");
+				boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "/");
 				if (flag) {
 					delNum++;
 				}
@@ -151,8 +151,8 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		FileAndFolder folder = folderService.getById(id);
 		logger.info("删除的文件夹ID=" + getId());
 		folderService.deleteFolder(folder);
-		logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
-		boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
+		logger.info("删除文件夹：" + folderPath + folder.getName() + "/");
+		boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "/");
 		if (flag) {
 			session.put("del", "delte folder success");
 		}
@@ -238,7 +238,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 	private String StringFilter(String str) throws PatternSyntaxException {
 		// 只允许字母和数字 // String regEx ="[^a-zA-Z0-9]";
 		// 清除掉所有特殊字符
-		String regEx = "[^?|\\/;*\"<>]+";
+		String regEx = "[^?\\/;*\"<>]+";
 		Pattern p = Pattern.compile(regEx);
 		Matcher m = p.matcher(str);
 		return m.replaceAll("").trim();

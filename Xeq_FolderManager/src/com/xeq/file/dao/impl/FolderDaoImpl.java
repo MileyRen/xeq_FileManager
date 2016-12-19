@@ -27,7 +27,7 @@ public class FolderDaoImpl extends BaseDao implements FolderDao {
 
 		for (FileAndFolder fgr : folderStack) {
 			try {
-				path = path + fgr.getName() + "\\";
+				path = path + fgr.getName()+"/";
 			} catch (Exception e) {
 				log.info(e.getStackTrace());
 				break;

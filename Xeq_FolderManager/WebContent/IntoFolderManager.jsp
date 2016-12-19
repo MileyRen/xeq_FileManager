@@ -25,7 +25,7 @@
 		User user = new User();
 		user.setId(1);
 		user.setUserName("user_1");
-		user.setFolder("D:\\xeptest\\user_1\\");
+		user.setFolder("D:/xeptest/user_1/");
 		session.setAttribute("user", user);
 		session.setAttribute("userId", 1);
 		session.setAttribute("basepath", basePath);
