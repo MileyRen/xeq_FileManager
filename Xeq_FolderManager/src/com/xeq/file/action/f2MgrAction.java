@@ -80,7 +80,6 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 			@Result(name = "success", type = "redirect", location = "pageList.action", params = { "parentFolderId",
 					"%{parentFolderId}" }) })
 	public String deleteBulk() {
-
 		HttpServletRequest request = ServletActionContext.getRequest();
 		User user = (User) session.get("user");
 		if (user == null) {
@@ -91,8 +90,7 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 		Integer userId = user.getId();
 
 		int delsize = Integer.parseInt(request.getParameter("delsize"));
-		System.out.println("delsuize===" + delsize);
-		System.out.println("fplderPath=" + folderPath);
+		int delNum = 0;
 		for (int i = 0; i < delsize; i++) {
 			int id = Integer.parseInt(request.getParameter("id[" + i + "]"));
 			String name = request.getParameter("name[" + i + "]");
@@ -103,6 +101,9 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 				int flag = folderService.delete(id);
 				logger.info("删除：" + flag + ";删除文件：" + folderPath + name + type);
 				boolean ret = folderOperate.delete(folderPath + name + type);
+				if (ret) {
+					delNum++;
+				}
 			} else {
 				logger.info("delet folder...." + id);
 				FileAndFolder folder = folderService.getById(id);
@@ -110,7 +111,11 @@ public class f2MgrAction extends ActionSupport implements SessionAware, ModelDri
 				folderService.deleteFolder(folder);
 				logger.info("删除文件夹：" + folderPath + folder.getName() + "\\");
 				boolean flag = folderOperate.deleteDirectory(folderPath + folder.getName() + "\\");
+				if (flag) {
+					delNum++;
+				}
 			}
+			logger.info("删除成功"+delNum+"个..");
 		}
 		return "success";
 	}

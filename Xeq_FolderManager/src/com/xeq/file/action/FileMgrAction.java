@@ -1,5 +1,7 @@
 package com.xeq.file.action;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
@@ -31,7 +33,6 @@ import com.xeq.file.domain.PageSource;
 import com.xeq.file.service.FolderService;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 @Namespace("/")
 @ParentPackage("struts-default")
@@ -64,83 +65,148 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 	private String fromPath;
 	private Integer toId;
 
-	@Action(value = "moveAction", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp"),
+	private Integer toIdBulk;
+
+	@Action(value = "BulkMove", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp"),
 			@Result(name = "error", location = "/fileManager/error.jsp"),
 			@Result(name = "input", location = "/fileManager/f2Mgr.jsp") })
-	public String moveFile() throws Exception {
-		logger.info("----------移动文件-----------");
-
+	public String BulkMove() throws Exception {
+		logger.info("----------批量移动文件-----------");
+		HttpServletRequest request = ServletActionContext.getRequest();
 		// 获取当前路径
 		String parentPath = (String) session.get("parentPath");
 		User user = (User) session.get("user");
 		if (user == null) {
 			return "error";
 		}
-		Integer userId = user.getId();
-		if (toId == null) {
-			toId = fromId;
+		int movesize = Integer.parseInt(request.getParameter("movesize"));
+		int toIdBulk = 0;
+		if (request.getParameter("toIdBulk") == null) {
+			toIdBulk = parentFolderId;
+		} else {
+			toIdBulk = Integer.parseInt(request.getParameter("toIdBulk"));
 		}
-		if (toId == fromId) {
-			return getPage();
+		int moveSize = 0;// 文件移动成功数量
+		for (int i = 0; i < movesize; i++) {
+			int fromId = Integer.parseInt(request.getParameter("fromId[" + i + "]"));
+			boolean move = moveFolderOrFile(parentPath, user, fromId, toIdBulk);
+			if (move) {
+				moveSize++;
+				logger.info("文件移动成功.....");
+			} else {
+				logger.info("文件移动失败，跳过.....");
+			}
+		}
+		logger.info("移动文件成功 " + moveSize + " 个");
+		return getPage();
+	}
+
+	/**
+	 * 移动文件
+	 * 
+	 * @param parentPath:父路径
+	 * @param User：用户对象
+	 * @param fromId:被移动文件Id
+	 * @param toId:移动到的文件夹Id
+	 * @return 移动成功或者失败
+	 */
+	public boolean moveFolderOrFile(String parentPath, User user, int fromId, int toId) {
+		int userId = user.getId();
+		if (fromId == toId) {
+			logger.info("fromId==toId");
+			return false;
 		}
 		FileAndFolder frompojo = folderService.getById(fromId);// 移动文件夹
 		FileAndFolder topojo = folderService.getById(toId);// 目标文件夹
+		if (topojo == null) {
+			topojo = new FileAndFolder();
+			topojo.setId(-1);
+			topojo.setParentFolderId(-2);
+		}
 
-		// 获取移动到的文件夹的路径-------------------------------
-		List<String> list = new ArrayList<String>();
-		String root_Path = null;
-
-		// 获取fgr的下一级目录
-		List<FileAndFolder> ls = folderService
-				.getAll("From FileAndFolder where userId=" + userId + " and type='folder' and parentFolderId=" + toId);
-		if (ls.size() != 0) {
-			// 若fgr下有文件夹
-			for (FileAndFolder fl : ls) {
-				if (fl.getName() == frompojo.getName() || fl.getName().equals(frompojo.getName())) {
-					logger.info("有重名文件夹,不进行移动");
-					return null;
+		logger.debug("检查目标文件夹下是否有同名..........");
+		List<FileAndFolder> listFilesAndFolders = folderService
+				.getAll("From FileAndFolder where userId=" + userId + " and parentFolderId=" + toId);
+		if (listFilesAndFolders.size() != 0) {
+			for (FileAndFolder fl : listFilesAndFolders) {
+				String fullToName = fl.getName() + fl.getType();
+				String fullFromName = frompojo.getName() + frompojo.getType();
+				if (fullFromName == fullToName || fullFromName.equals(fullToName)) {
+					logger.info("有同名文件，不进行移动");
+					return false;
 				}
 			}
 		}
+		logger.debug("检查是否为子文件夹....");
+		if (frompojo.getType() == "folder" || frompojo.getType().equals("folder")) {
+			int parentId = topojo.getParentFolderId();
+			while (parentId > -1) {
+				if (parentId == fromId) {
+					logger.info("不能移动到子文件夹中");
+					return false;
+				} else {
+					parentId = folderService.getById(parentId).getParentFolderId();
+				}
+			}
+		}
+
+		String root_Path = null;
 		try {
-			logger.info("toId=============" + toId);
 			root_Path = folderService.getToPath(fromId, toId, user.getFolder(), userId);
 			logger.info("目标目录==" + root_Path);
 		} catch (NullPointerException e) {
 			logger.info("移动失败");
-			return "error";
+			return false;
 		}
 		String from_path = parentPath;
 		logger.info("fromPath===" + from_path);
 		// 获取移动到的文件夹的路径结束-----------------------------
-		System.out.println("--------------" + frompojo.getType());
 		if (frompojo.getType() == "folder" || frompojo.getType().equals("folder")) {
 			from_path = from_path + frompojo.getName() + File.separator;
 		} else {
 			from_path = from_path + frompojo.getName() + frompojo.getType();
 		}
 		logger.info("from——path是===========" + from_path);
-
 		String new_path = root_Path;
-		
-		String new_mappingPath = user.getFolder();
+
 		Integer new_parentFolderId = -1;
 		FileAndFolder new_delFlag = null;
-		if (new_path != user.getFolder() || !new_path.equals(user.getFolder())) {// 若不为根目录
-			new_mappingPath = topojo.getMappingPath();
+		if (topojo.getId() > -1) {
 			new_parentFolderId = topojo.getId();
 			new_delFlag = topojo;
 		}
-
-		boolean moveFlag = folderOperate.removeFileOrFolder(from_path, new_path);
+		// }
+		boolean moveFlag = folderOperate.removeFileOrFolder(from_path, new_path);// 真实目录移动
 		if (moveFlag == true) {
-			frompojo.setMappingPath(new_mappingPath);
 			frompojo.setDeleteFlag(new_delFlag);
 			frompojo.setParentFolderId(new_parentFolderId);
 			folderService.update(frompojo);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
+	@Action(value = "moveAction", results = { @Result(name = "pagerlist", location = "/fileManager/f2Mgr.jsp"),
+			@Result(name = "error", location = "/fileManager/error.jsp"),
+			@Result(name = "input", location = "/fileManager/f2Mgr.jsp") })
+	public String moveFileOrFolder() throws Exception {
+		logger.info("----------移动文件-----------");
+		// 获取当前路径
+		String parentPath = (String) session.get("parentPath");
+		User user = (User) session.get("user");
+		if (user == null) {
+			return "error";
+		}
+		if (toId == null) {
+			toId = fromId;
+		}
+		Boolean move = moveFolderOrFile(parentPath, user, fromId, toId);
+		if (move) {
+			logger.info("移动文件或文件夹成功");
 			return getPage();
 		} else {
+			logger.info("移动失败");
 			return "error";
 		}
 	}
@@ -182,8 +248,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			System.out.println(fileAndFolder.toString());
 		}
 		System.out.println("------------------------------输出Stack----------------------------------------");
-		// folderPath = folderService.parentPath(parentFolderId, folderStack,
-		// rootPath);
 		folderPath = folderService.intoPath(parentFolderId, userId, rootPath);
 		logger.info("当前路径==" + folderPath);
 
@@ -256,7 +320,6 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 			System.out.println(fileAndFolder.toString());
 		}
 		System.out.println("------------------------------输出Back Stack----------------------------------------");
-		// folderPath = folderService.parentPath(pid, folderStack, rootPath);
 		folderPath = folderService.intoPath(pid, userId, rootPath);
 		logger.info("backfolderPath========" + folderPath);
 
@@ -357,6 +420,14 @@ public class FileMgrAction extends ActionSupport implements SessionAware, ModelD
 
 	public void setToId(Integer toId) {
 		this.toId = toId;
+	}
+
+	public Integer getToIdBulk() {
+		return toIdBulk;
+	}
+
+	public void setToIdBulk(Integer toIdBulk) {
+		this.toIdBulk = toIdBulk;
 	}
 
 	public FolderOperate getFolderOperate() {

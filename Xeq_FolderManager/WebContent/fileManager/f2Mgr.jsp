@@ -55,14 +55,19 @@
 						</ol>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-					<li><a href="#" onclick="delbulk(${parentId})"  class="btn"><span class="glyphicon glyphicon-trash"></span> Delete</a></li>
-					<li><a href="#" onclick="movebulk(${parentId})" class="btn"><span class="glyphicon glyphicon-move"></span> Move</a></li>
-						<li><a href="#modal-container-create" class="btn" > <span
+						<li><a href="#modal-container-create" class="btn" data-toggle="modal"> <span
 								class="glyphicon glyphicon-plus-sign"></span> Create
 						</a></li>
-						<li><a href="#modal-container-upload" class="btn" > <span
+						<li><a href="#modal-container-upload" class="btn" data-toggle="modal"> <span
 								class="glyphicon glyphicon-cloud-upload"></span> Upload
 						</a></li>
+						<li><a href="#" class="btn" 
+						       onclick="if(confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THOST FOLDER?')==false)return false;else{delbulk(${parentId});}" >
+						    <span class="glyphicon glyphicon-trash"></span> delete</a></li>
+						<li><a class="btn" data-toggle="modal" data-target="#BulkMoveModal" >
+	                          <span class="glyphicon glyphicon-move"></span> Move
+                            </a></li>
+						
 						<li><a href="#" onclick="javascript:window.location.href='backStack.action'" class="btn">
 								<span class="glyphicon glyphicon-circle-arrow-left"></span> Back
 						</a></li>
@@ -107,11 +112,8 @@
 											</form>
 											<a onclick="if(confirm(' ARE YOU SURE DELETE THE FOLDER AND FILES IN THE FOLDER?')==false)return false;else{$('form#del${id}').submit();}"> <span class="glyphicon glyphicon-trash"></span>delete
 											</a>
-											<%-- <a
-												href="deleteDir.action?id=${id}&folderPath=${folderPath}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
-												onclick="return del();"> <span class="glyphicon glyphicon-trash"></span>delete
-											</a> --%></li>
-											<li><a href="#modal-container-move" onclick="prom(${id})"> <span
+											</li>
+											<li><a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})"> <span
 													class="glyphicon glyphicon-move"></span>move
 											</a>
 											</li>
@@ -148,12 +150,7 @@
 											</form>
 											<a onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;else{$('form#del${id}').submit();}"> <span class="glyphicon glyphicon-trash"></span>delete
 											</a>
-											
-										<%-- 	<a
-												href="delete.action?id=${id}&folderPath=${folderPath}&name=${name}&type=${type}&parentFolderId=${parentFolderId}&pagesource.currentPage=${pagesource.currentPage}"
-												onclick="if(confirm(' ARE YOU SURE DELETE THE FILE?')==false)return false;"> <span
-													class="glyphicon glyphicon-trash"></span>delete
-											</a> --%></li>
+									       </li>
 											<li>
 											<form id="down${id}" action="download.action" method="post">
 											<input type="hidden" name="folderPath" value="${folderPath}">
@@ -162,10 +159,7 @@
 											<input type="hidden" name="downfileName" value="${name}${type}">
 											</form>
 											<a onclick="javascript:$('form#down${id}').submit()"><span class="glyphicon  glyphicon-save"></span>download</a>
-											<%-- <a
-												href="download.action?folderPath=${folderPath}&name=${name}$type=${type}&downfileName=${name}${type}">
-													<span class="glyphicon  glyphicon-save"></span>download
-											</a> --%></li>
+											</li>
 											<li><a href="#modal-container-move" data-toggle="modal" onclick="prom(${id})"> 
 											<span class="glyphicon glyphicon-move"></span>move
 											</a></li>
@@ -196,6 +190,41 @@
 		</div>
 	</div>
 	<!-- 弹出框开始 -->
+	
+	<!-- 批量移动文件夹 -->
+     <div class="modal fade" id="BulkMoveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	 <div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="myModalLabel">
+					<a href="#" class="btn"> <span class="glyphicon glyphicon-plus"> </span>
+					Move Folders and Files To A Folder...
+					</a>
+				</h4>
+			</div>
+			<div class="modal-body" style="height: 250px">
+				<div class="form-group" style="padding:10px 20px 10px 80px;">
+					<select id="bulkTree" style="width: 300px" class="form-control"></select><br>
+					<input type="hidden" name="pagesource.currentPage" value="${pagesource.currentPage}" />
+					<input type="hidden" name="parentFolderId" value="${session.parentId }" />
+					<input type="hidden" name="toIdBulk" id="BulktoPathId" value="">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel
+				</button>
+				<button type="button" class="btn btn-primary" onclick="promList(${pagesource.currentPage},${session.parentId })">
+					Submit
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+	<!-- 批量移动文件夹结束 -->
+	
 	<!-- 移动文件开始 ,文件可移动到任意文件夹-->
 	<div class="modal fade" id="modal-container-move" role="dialog" aria-labelledby="myModalLabel"
 		aria-hidden="true">
@@ -259,8 +288,6 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
-					<!-- <button type="button" class="btn btn-primary" onclick="javascript:$('form#addFiles').submit()">
-						Upload</button> -->
 					<button type="button" class="btn btn-primary" id="up">Upload</button>
 				</div>
 			</div>
@@ -343,6 +370,17 @@
     	 //alert(node.id);
     }
  });
+   
+   $("#bulkTree").combotree({
+		 valueField: 'id',
+	     textField: 'text',                                  
+	     data : data1,
+	     required:true,
+	     onSelect:function(node){
+	    	 document.getElementById("BulktoPathId").value = node.id;
+	    	 //alert(node.id);
+	    }
+	 });
    </script> 
 
 </body>

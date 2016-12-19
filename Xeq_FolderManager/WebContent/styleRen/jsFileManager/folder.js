@@ -21,9 +21,26 @@ function delbulk(arr) {
 	temp.submit();
 }
 
-function movebulk() {
-	$("input[name='delbulk']:checked").each(function() {
+function promList(arr1,arr2) {
+	var str = "BulkMove.action?";
+	var i=0;
+	$("input[class='delbulk']:checked").each(function() {
+		var temp = $(this).val();
+		var strArray = new Array(); 
+		strArray  = temp.split("[arr]");
+		str+="fromId["+i+"]="+strArray[1]+"&";
+		i++;
 	});
+	str+="movesize="+i;
+	var toIdBulk = document.getElementById("BulktoPathId").value;
+	str+="&toIdBulk="+toIdBulk+"&pagesource.currentPage="+arr1+"&parentFolderId="+arr2;
+	//alert(str);
+	var temp = document.createElement("form");
+	temp.action =str;
+	temp.method = "post";
+	temp.style.display = "none";
+	document.body.appendChild(temp);
+	temp.submit();
 }
 
 // 全选和全不选（第一个参数为复选框名称，第二个参数为是全选还是全不选）
